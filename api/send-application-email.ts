@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { sendConfirmationEmail, type ApplicationEmailPayload } from './lib/mailer';
-import { markEmailResult } from './lib/firebaseAdmin';
+import { sendConfirmationEmail, type ApplicationEmailPayload } from './lib/mailer.js';
+import { markEmailResult } from './lib/firebaseAdmin.js';
 
 const payloadSchema = z.object({
   applicationId: z.string().min(3).max(40),

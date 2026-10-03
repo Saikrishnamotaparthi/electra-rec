@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getAdminApp, getFirestoreClient } from './lib/firebaseAdmin';
-import { sendConfirmationEmail } from './lib/mailer';
+import { getAdminApp, getFirestoreClient } from './lib/firebaseAdmin.js';
+import { sendConfirmationEmail } from './lib/mailer.js';
 
 const APPLICATION_ID_PREFIX = 'GE26';
 
