@@ -48,7 +48,6 @@ import { PortfolioList, RadioCard } from '@/components/ui/Cards';
 import { useDraft, clearDraft } from '@/hooks/useDraft';
 import { useToast } from '@/components/shared/Toast';
 import { submitApplicationDirect } from '@/services/applicationsService';
-import { isFirebaseConfigured } from '@/firebase/config';
 import { cn, sanitizeText } from '@/utils';
 
 type StepId = 'personal' | 'portfolio' | 'role' | 'questions' | 'photo' | 'review' | 'success';
@@ -482,16 +481,12 @@ export default function ApplyPage() {
     } catch (err) {
       console.error('submit error', err);
       setNetworkError(
-        isFirebaseConfigured
-          ? 'Unable to reach the recruitment service. Please check your connection and try again.'
-          : 'Recruitment service is not configured yet. Set Firebase environment variables and try again.',
+        'Unable to reach the recruitment service. Please check your connection and try again.',
       );
       push(
         'error',
-        'Network error',
-        isFirebaseConfigured
-          ? 'Unable to reach the recruitment service.'
-          : 'Firebase is not configured in this environment.',
+        'Unable to submit',
+        'Please check your connection and try again.',
       );
     } finally {
       setSubmitting(false);
@@ -1117,17 +1112,7 @@ export default function ApplyPage() {
             </div>
           ) : null}
 
-          {!isFirebaseConfigured ? (
-            <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs text-mist-300">
-              Tip: Firebase is not configured in this environment. Set VITE_FIREBASE_* values in
-              <code className="mx-1 rounded bg-ink-750 px-1.5 py-0.5 font-mono text-gold-300">
-                .env
-              </code>
-              to enable live submission.
-            </p>
-          ) : null}
-
-          <div className="mt-5">
+          <div className="mt-5 space-y-4">
             <Button
               type="button"
               onClick={onSubmitReview}
@@ -1139,9 +1124,14 @@ export default function ApplyPage() {
             >
               {submitting ? 'Submitting application…' : 'SUBMIT APPLICATION'}
             </Button>
-            <p className="mt-3 text-center text-xs text-mist-400">
+            <p className="text-center text-xs text-mist-400">
               You will receive an application ID after successful submission. Save it for your
               records.
+            </p>
+            <p className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-[11px] leading-relaxed text-mist-400">
+              By submitting, you agree that G-ELECTRA may contact you about recruitment and store
+              the details you provide for club use only. Your information is not shared outside the
+              club team.
             </p>
           </div>
         </SectionCard>
@@ -1252,9 +1242,10 @@ export default function ApplyPage() {
           </Link>
           <Link
             to="/"
-            className="rounded-lg px-3 py-2 text-xs font-medium text-mist-200 transition hover:text-gold-300"
+            className="shrink-0 rounded-lg px-3 py-2 text-xs font-medium text-mist-200 transition hover:text-gold-300"
           >
-            ← Back to site
+            <span className="hidden sm:inline">← Back to site</span>
+            <span className="sm:hidden">← Back</span>
           </Link>
         </div>
       </header>
@@ -1320,7 +1311,10 @@ export default function ApplyPage() {
         </AnimatePresence>
 
         {/* Bottom nav */}
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-ink-950/95 px-4 py-3 backdrop-blur-xl">
+        <div
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-ink-950/95 px-4 py-3 backdrop-blur-xl"
+          style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+        >
           <div className="mx-auto flex max-w-4xl gap-3">
             {stepIndex > 0 && currentStep !== 'review' ? (
               <Button
