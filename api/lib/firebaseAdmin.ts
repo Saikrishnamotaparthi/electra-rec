@@ -2,7 +2,10 @@ import { cert, getApps, initializeApp, type App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 
+/** Built-in admins. Always authorized for the API (resend, etc.). */
 const ADMIN_EMAILS_FALLBACK = ['hello@dotfreelancer.in', 'gelectra@gitam.edu'];
+
+const ADMIN_CONFIG_PATH = 'admin_config/list';
 
 let adminApp: App | null = null;
 
@@ -43,15 +46,46 @@ export function getFirestoreClient() {
   return getFirestore(app);
 }
 
-export function getAuthorizedAdminEmails(): string[] {
-  const fromEnv = process.env.ADMIN_EMAILS;
-  if (fromEnv && fromEnv.trim()) {
-    return fromEnv
-      .split(',')
-      .map((e) => e.trim().toLowerCase())
-      .filter(Boolean);
+function parseCsvEmails(raw: string | undefined): string[] {
+  if (!raw || !raw.trim()) return [];
+  return raw
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+/**
+ * Seed admins ∪ optional ADMIN_EMAILS env ∪ runtime list in Firestore
+ * (`admin_config/list`, managed from Admin Settings UI).
+ */
+export async function getAuthorizedAdminEmails(): Promise<string[]> {
+  const allowed = new Set<string>();
+  for (const email of ADMIN_EMAILS_FALLBACK) {
+    allowed.add(email.toLowerCase());
   }
-  return ADMIN_EMAILS_FALLBACK;
+  for (const email of parseCsvEmails(process.env.ADMIN_EMAILS)) {
+    allowed.add(email);
+  }
+
+  const firestore = getFirestoreClient();
+  if (firestore) {
+    try {
+      const snap = await firestore.doc(ADMIN_CONFIG_PATH).get();
+      if (snap.exists) {
+        const emails = snap.data()?.emails;
+        if (Array.isArray(emails)) {
+          for (const email of emails) {
+            const normalized = String(email ?? '').trim().toLowerCase();
+            if (normalized) allowed.add(normalized);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[firebaseAdmin] failed to read admin_config/list', err);
+    }
+  }
+
+  return [...allowed];
 }
 
 export async function verifyAdminIdToken(idToken: string): Promise<string> {
@@ -64,7 +98,7 @@ export async function verifyAdminIdToken(idToken: string): Promise<string> {
   const decoded = await getAuth(app).verifyIdToken(idToken);
   const email = (decoded.email ?? '').toLowerCase();
   if (!email) throw new Error('Token has no email claim.');
-  const allowed = getAuthorizedAdminEmails();
+  const allowed = await getAuthorizedAdminEmails();
   if (!allowed.includes(email)) {
     throw new Error('This account is not authorized to manage recruitment emails.');
   }

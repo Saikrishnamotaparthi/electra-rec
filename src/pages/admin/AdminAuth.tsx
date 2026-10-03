@@ -237,4 +237,22 @@ export function AdminRedirectIfAuthenticated({ children }: { children: ReactNode
   const [authed, setAuthed] = useState<boolean | null>(null);
   useEffect(() => {
     let cancelled = false;
-    const unsub = subscri
+    const unsub = subscribeAuth((user) => {
+      if (!user) {
+        setAuthed(false);
+        return;
+      }
+      void (async () => {
+        const authorized = await isAdminEmail(user.email);
+        if (!cancelled) setAuthed(authorized);
+      })();
+    });
+    return () => {
+      cancelled = true;
+      unsub();
+    };
+  }, []);
+  if (authed === null) return <LoadingScreen />;
+  if (authed) return <Navigate to="/admin/dashboard" replace />;
+  return <>{children}</>;
+}

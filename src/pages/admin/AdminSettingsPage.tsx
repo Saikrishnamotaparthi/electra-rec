@@ -135,4 +135,110 @@ export default function AdminSettingsPage() {
               type="email"
               name="adminEmail"
               placeholder="name@example.com"
-       
+              value={draftEmail}
+              onChange={(e) => setDraftEmail(e.target.value)}
+              autoComplete="email"
+              disabled={busy !== null || !profile}
+            />
+          </div>
+          <div className="flex items-end">
+            <Button
+              type="submit"
+              variant="secondary"
+              loading={busy === 'add'}
+              disabled={busy !== null || !draftEmail.trim() || !profile}
+              className="sm:mb-0.5"
+            >
+              Add admin
+            </Button>
+          </div>
+        </form>
+
+        {loading && emails.length === 0 ? (
+          <p className="text-sm text-mist-300">Loading administrators…</p>
+        ) : emails.length === 0 ? (
+          <p className="text-sm text-mist-300">No administrators on the list yet.</p>
+        ) : (
+          <ul className="space-y-2">
+            {emails.map((email) => {
+              const isSeed = isSeedAdminEmail(email);
+              const isSelf = email === currentEmail;
+              return (
+                <li
+                  key={email}
+                  className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-ink-900/50 px-4 py-3"
+                >
+                  <UserCheck className="h-4 w-4 text-emerald-400" aria-hidden="true" />
+                  <span className="min-w-0 flex-1 break-all text-sm text-mist-100">{email}</span>
+                  {isSeed ? (
+                    <Badge className="bg-sky-500/15 text-sky-200 ring-sky-500/30">Built-in</Badge>
+                  ) : (
+                    <Badge className="bg-gold-500/15 text-gold-200 ring-gold-500/30">Added</Badge>
+                  )}
+                  {isSelf ? (
+                    <Badge className="bg-gold-500/15 text-gold-200 ring-gold-500/30">You</Badge>
+                  ) : null}
+                  {!isSeed ? (
+                    <Button
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      loading={busy === `remove:${email}`}
+                      disabled={busy !== null || isSelf}
+                      onClick={() => void handleRemove(email)}
+                      title={
+                        isSelf
+                          ? 'You cannot remove your own admin access'
+                          : `Remove ${email} from admin access`
+                      }
+                    >
+                      Remove
+                    </Button>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        <p className="mt-4 flex items-start gap-2 text-xs text-mist-400">
+          <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-400" aria-hidden="true" />
+          <span>
+            Built-in seed accounts:{' '}
+            <span className="text-mist-300">{SEED_ADMINS.join(', ')}</span>. Runtime admins are
+            stored in Firestore <code className="text-gold-300">admin_config/list</code> and
+            enforced in Firestore rules + the email API. After adding an account, they sign in
+            with the same Google email.
+          </span>
+        </p>
+      </SectionCard>
+
+      <SectionCard title="Current session">
+        {profile ? (
+          <div className="space-y-2 text-sm">
+            <p className="text-mist-100">
+              <span className="text-mist-400">Name:</span> {profile.displayName}
+            </p>
+            <p className="break-all text-mist-100">
+              <span className="text-mist-400">Email:</span> {profile.email}
+            </p>
+            <p className="text-mist-100">
+              <span className="text-mist-400">UID:</span>{' '}
+              <span className="font-mono text-xs">{profile.uid}</span>
+            </p>
+            <p className="text-mist-100">
+              <span className="text-mist-400">Access:</span>{' '}
+              <span className="text-emerald-300">
+                {isSeedAdminEmail(profile.email)
+                  ? 'Authorized (built-in seed)'
+                  : 'Authorized (added admin)'}
+              </span>
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-mist-300">No active admin session.</p>
+        )}
+      </SectionCard>
+    </div>
+  );
+}

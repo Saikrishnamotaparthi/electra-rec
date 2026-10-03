@@ -2,30 +2,70 @@ rules_version = '2';
 
 // G-ELECTRA Recruitment Platform — Firestore security rules
 // Public: create-only submissions on /applications.
-// Admins: read + update, enforced via hardcoded allowlist below.
+// Admins: read + update.
+//   - Seed admins (hardcoded below) always work.
+//   - Runtime admins live in /admin_config/list (managed from Admin Settings).
+//   - Seed emails must always remain on the list (lockout prevention).
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Shared helper: check if the caller is an authorized admin.
+    function seedAdminEmails() {
+      return ['hello@dotfreelancer.in', 'gelectra@gitam.edu'];
+    }
+
+    function adminConfigDocPath() {
+      return /databases/$(database)/documents/admin_config/list;
+    }
+
+    function dynamicAdminEmails() {
+      return exists(adminConfigDocPath())
+        ? get(adminConfigDocPath()).data.emails
+        : [];
+    }
+
+    function isSeedAdmin() {
+      return request.auth != null
+        && request.auth.token.email in seedAdminEmails();
+    }
+
     function isAuthorizedAdmin() {
       return request.auth != null
-        && request.auth.token.email in [
-          'hello@dotfreelancer.in',
-          'gelectra@gitam.edu'
-        ];
+        && (
+          request.auth.token.email in seedAdminEmails()
+          || request.auth.token.email in dynamicAdminEmails()
+        );
+    }
+
+    function validAdminEmails(emails) {
+      return emails is list
+        && emails.size() >= 1
+        && emails.size() <= 50
+        && emails.hasAll(seedAdminEmails());
+    }
+
+    // Runtime admin allowlist — any signed-in user may READ so newly added
+    // admins can pass the client-side auth gate after they are added.
+    match /admin_config/{docId} {
+      allow get, list: if request.auth != null;
+
+      allow create: if isSeedAdmin()
+        && !exists(adminConfigDocPath())
+        && validAdminEmails(request.resource.data.emails);
+
+      allow update: if isAuthorizedAdmin()
+        && validAdminEmails(request.resource.data.emails);
+
+      allow delete: if false;
     }
 
     // Applications collection
     match /applications/{docId} {
-      // Anyone (including anonymous auth) can CREATE a new application.
       allow create: if true;
 
-      // Only authorized admins can READ application documents.
       allow get, list: if isAuthorizedAdmin();
 
       // Admins: full update (status, archive, notes).
-      // Public: only email delivery tracking fields, so the submitter /
-      // local API middleware can record sent|failed without admin SDK.
+      // Public: only email delivery tracking fields for submitter/local API.
       allow update: if isAuthorizedAdmin()
         || request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'emailStatus',
@@ -34,7 +74,6 @@ service cloud.firestore {
           'updatedAt'
         ]);
 
-      // No client-side deletes — archive via update instead.
       allow delete: if false;
     }
 

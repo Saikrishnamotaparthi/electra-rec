@@ -68,4 +68,7 @@ export async function signInWithGoogle(): Promise<{
   }
 }
 
-export async f
+export async function signOutAdmin(): Promise<void> {
+  if (!auth) return;
+  await signOut(auth);
+}
