@@ -12,19 +12,19 @@ const fadeUp = {
 
 function BrandLockup({ className }: { className?: string }) {
   return (
-    <div className={cn('flex items-center gap-3', className)}>
+    <div className={cn('flex items-center gap-2 sm:gap-3', className)}>
       <img
         src={LOGO_PATH}
         alt={LOGO_ALT}
-        className="h-12 w-12 rounded-full object-contain shadow-gold-sm sm:h-14 sm:w-14"
+        className="h-10 w-10 rounded-full object-contain shadow-gold-sm sm:h-14 sm:w-14"
         width={56}
         height={56}
       />
-      <div>
-        <p className="font-display text-base font-bold tracking-[0.18em] text-gold-400 sm:text-lg">
+      <div className="min-w-0">
+        <p className="truncate font-display text-sm font-bold tracking-[0.14em] text-gold-400 sm:text-lg sm:tracking-[0.18em]">
           {CLUB_NAME}
         </p>
-        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-mist-200">
+        <p className="hidden truncate text-[11px] font-medium uppercase tracking-[0.14em] text-mist-200 sm:block">
           {CLUB_TAGLINE}
         </p>
       </div>
@@ -51,10 +51,10 @@ export default function LandingPage() {
           </Link>
           <Link
             to="/apply"
-            className="inline-flex h-10 items-center gap-2 rounded-xl bg-gold-linear px-4 text-sm font-semibold text-ink-900 shadow-gold-sm transition hover:brightness-105"
+            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl bg-gold-linear px-3 text-xs font-semibold text-ink-900 shadow-gold-sm transition hover:brightness-105 sm:h-10 sm:gap-2 sm:px-4 sm:text-sm"
           >
             Apply Now
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
           </Link>
         </div>
       </header>
@@ -80,22 +80,26 @@ export default function LandingPage() {
               <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
               Recruitment {new Date().getFullYear()} · Open Now
             </p>
-            <h1 className="font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="font-display text-[2.15rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
               {HERO.headline.split(' ')[0]}{' '}
               <span className="bg-gold-linear bg-clip-text text-transparent">
                 TEAM {CLUB_NAME}
               </span>
             </h1>
-            <p className="mt-4 text-lg font-medium text-gold-200">{HERO.supporting}</p>
-            <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-mist-200">{HERO.body}</p>
+            <p className="mt-3 text-base font-medium text-gold-200 sm:mt-4 sm:text-lg">
+              {HERO.supporting}
+            </p>
+            <p className="mt-3 text-[14px] leading-relaxed text-mist-200 sm:text-[15px]">
+              {HERO.body}
+            </p>
 
-            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-mist-300">
+            <div className="mt-4 flex flex-col gap-2 text-sm text-mist-300 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
               <span className="inline-flex items-center gap-1.5">
-                <Users className="h-4 w-4 text-gold-400" aria-hidden="true" /> {DEPARTMENT}
+                <Users className="h-4 w-4 shrink-0 text-gold-400" aria-hidden="true" /> {DEPARTMENT}
               </span>
               <span className="hidden h-1 w-1 rounded-full bg-white/20 sm:block" aria-hidden="true" />
               <span className="inline-flex items-center gap-1.5">
-                <Cpu className="h-4 w-4 text-gold-400" aria-hidden="true" /> {UNIVERSITY}
+                <Cpu className="h-4 w-4 shrink-0 text-gold-400" aria-hidden="true" /> {UNIVERSITY}
               </span>
             </div>
 

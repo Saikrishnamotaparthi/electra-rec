@@ -65,7 +65,7 @@ export default function AdminDashboardPage() {
       setRecent(recentPage.items);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Failed to load applications from Firestore.';
+        err instanceof Error ? err.message : 'Failed to load applications. Please try again.';
       setError(message);
       push('error', 'Load failed', message);
     } finally {
@@ -143,7 +143,7 @@ export default function AdminDashboardPage() {
           <h2 className="font-display text-2xl font-bold text-white">Dashboard</h2>
           <p className="mt-1 text-sm text-mist-300">
             Welcome{profile ? `, ${profile.displayName.split(' ')[0]}` : ''}. Live recruitment
-            snapshot from Firestore.
+            snapshot.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -249,7 +249,7 @@ export default function AdminDashboardPage() {
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
             <h3 className="font-display text-lg font-semibold text-white">Recent applications</h3>
-            <p className="text-sm text-mist-300">Latest submissions from Firestore</p>
+            <p className="text-sm text-mist-300">Latest submissions</p>
           </div>
           <Link to="/admin/applications">
             <Button type="button" variant="ghost" rightIcon={<ArrowUpRight className="h-4 w-4" />}>
@@ -261,45 +261,74 @@ export default function AdminDashboardPage() {
         {recent.length === 0 ? (
           <EmptyState
             title="No applications yet"
-            description="Applications submitted through /apply will appear here."
+            description="Applications submitted through the public form will appear here."
           />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left text-sm">
-              <thead>
-                <tr className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-mist-400">
-                  <th className="pb-3 pr-4 font-medium">ID</th>
-                  <th className="pb-3 pr-4 font-medium">Name</th>
-                  <th className="pb-3 pr-4 font-medium">Portfolio</th>
-                  <th className="pb-3 pr-4 font-medium">Role</th>
-                  <th className="pb-3 pr-4 font-medium">Status</th>
-                  <th className="pb-3 font-medium">Submitted</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recent.map((app) => (
-                  <tr key={app.id} className="border-b border-white/5 last:border-0">
-                    <td className="py-3 pr-4 font-mono text-xs text-gold-300">
-                      <Link to={`/admin/applications/${app.id}`} className="hover:underline">
-                        {app.applicationId}
-                      </Link>
-                    </td>
-                    <td className="py-3 pr-4 text-white">{app.personal.fullName}</td>
-                    <td className="py-3 pr-4 text-mist-200">
-                      {PORTFOLIO_SHORT_LABELS[app.application.portfolio]}
-                    </td>
-                    <td className="py-3 pr-4 text-mist-200">
-                      {app.application.role === 'CO_LEAD' ? 'Co-Lead' : 'Member'}
-                    </td>
-                    <td className="py-3 pr-4">
-                      <StatusBadge status={app.status} label={STATUS_LABELS[app.status]} />
-                    </td>
-                    <td className="py-3 text-mist-300">{formatDateTime(app.submittedAt)}</td>
+          <>
+            {/* Mobile cards */}
+            <div className="space-y-3 md:hidden">
+              {recent.map((app) => (
+                <Link
+                  key={app.id}
+                  to={`/admin/applications/${app.id}`}
+                  className="block rounded-xl border border-white/10 bg-ink-900/50 p-4 transition hover:border-gold-500/30"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-white">
+                        {app.personal.fullName}
+                      </p>
+                      <p className="font-mono text-xs text-gold-300">{app.applicationId}</p>
+                    </div>
+                    <StatusBadge status={app.status} label={STATUS_LABELS[app.status]} />
+                  </div>
+                  <p className="mt-2 text-xs text-mist-300">
+                    {PORTFOLIO_SHORT_LABELS[app.application.portfolio]} ·{' '}
+                    {app.application.role === 'CO_LEAD' ? 'Co-Lead' : 'Member'}
+                  </p>
+                  <p className="mt-1 text-xs text-mist-500">{formatDateTime(app.submittedAt)}</p>
+                </Link>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden overflow-x-auto md:block">
+              <table className="w-full min-w-[720px] text-left text-sm">
+                <thead>
+                  <tr className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-mist-400">
+                    <th className="pb-3 pr-4 font-medium">ID</th>
+                    <th className="pb-3 pr-4 font-medium">Name</th>
+                    <th className="pb-3 pr-4 font-medium">Portfolio</th>
+                    <th className="pb-3 pr-4 font-medium">Role</th>
+                    <th className="pb-3 pr-4 font-medium">Status</th>
+                    <th className="pb-3 font-medium">Submitted</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {recent.map((app) => (
+                    <tr key={app.id} className="border-b border-white/5 last:border-0">
+                      <td className="py-3 pr-4 font-mono text-xs text-gold-300">
+                        <Link to={`/admin/applications/${app.id}`} className="hover:underline">
+                          {app.applicationId}
+                        </Link>
+                      </td>
+                      <td className="py-3 pr-4 text-white">{app.personal.fullName}</td>
+                      <td className="py-3 pr-4 text-mist-200">
+                        {PORTFOLIO_SHORT_LABELS[app.application.portfolio]}
+                      </td>
+                      <td className="py-3 pr-4 text-mist-200">
+                        {app.application.role === 'CO_LEAD' ? 'Co-Lead' : 'Member'}
+                      </td>
+                      <td className="py-3 pr-4">
+                        <StatusBadge status={app.status} label={STATUS_LABELS[app.status]} />
+                      </td>
+                      <td className="py-3 text-mist-300">{formatDateTime(app.submittedAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </section>
 

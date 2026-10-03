@@ -100,7 +100,7 @@ export interface ListFilters {
 export async function listApplications(
   filters: ListFilters = {},
 ): Promise<{ items: ApplicationDocument[]; nextCursor: QueryDocumentSnapshot<DocumentData> | null }> {
-  if (!db) throw new Error('Firebase is not configured');
+  if (!db) throw new Error('Recruitment service is unavailable.');
 
   const constraints: QueryConstraint[] = [];
   constraints.push(where('archived', '==', false));
@@ -161,7 +161,7 @@ export async function listApplications(
 }
 
 export async function getApplication(docId: string): Promise<ApplicationDocument | null> {
-  if (!db) throw new Error('Firebase is not configured');
+  if (!db) throw new Error('Recruitment service is unavailable.');
   const snap = await getDoc(doc(db, COLLECTION, docId));
   if (!snap.exists()) return null;
   return mapDoc(snap.id, snap.data());
@@ -170,7 +170,7 @@ export async function getApplication(docId: string): Promise<ApplicationDocument
 export async function getApplicationByRegistration(
   registrationNumber: string,
 ): Promise<ApplicationDocument | null> {
-  if (!db) throw new Error('Firebase is not configured');
+  if (!db) throw new Error('Recruitment service is unavailable.');
   const reg = normalizeRegNumber(registrationNumber);
   const snap = await getDocs(
     query(
@@ -187,7 +187,7 @@ export async function getApplicationByRegistration(
 export async function getApplicationByEmail(
   email: string,
 ): Promise<ApplicationDocument | null> {
-  if (!db) throw new Error('Firebase is not configured');
+  if (!db) throw new Error('Recruitment service is unavailable.');
   const normalized = normalizeEmail(email);
   const snap = await getDocs(
     query(
@@ -247,7 +247,7 @@ export async function submitApplicationDirect(payload: ApplicantPayload): Promis
       ok: false,
       error:
         apiResult.error ??
-        'Firebase is not configured. Set VITE_FIREBASE_* env vars and try again.',
+        'Unable to reach the recruitment service. Please try again later.',
     };
   }
   try {
@@ -321,7 +321,7 @@ export async function updateApplicationStatus(
   status: ApplicationStatus,
   changedBy: string,
 ): Promise<void> {
-  if (!db) throw new Error('Firebase is not configured');
+  if (!db) throw new Error('Recruitment service is unavailable.');
   await updateDoc(doc(db, COLLECTION, docId), {
     status,
     updatedAt: Date.now(),
@@ -335,7 +335,7 @@ export async function updateEmailStatus(
   emailStatus: 'sent' | 'failed' | 'pending',
   emailError: string | null,
 ): Promise<void> {
-  if (!db) throw new Error('Firebase is not configured');
+  if (!db) throw new Error('Recruitment service is unavailable.');
   await updateDoc(doc(db, COLLECTION, docId), {
     emailStatus,
     emailError,
@@ -346,7 +346,7 @@ export async function updateEmailStatus(
 
 export async function archiveApplication(docId: string): Promise<void> {
   const { updateDoc } = await import('firebase/firestore');
-  if (!db) throw new Error('Firebase is not configured');
+  if (!db) throw new Error('Recruitment service is unavailable.');
   await updateDoc(doc(db, COLLECTION, docId), {
     archived: true,
     updatedAt: Date.now(),
@@ -354,7 +354,7 @@ export async function archiveApplication(docId: string): Promise<void> {
 }
 
 export async function fetchAllForExport(): Promise<ApplicationDocument[]> {
-  if (!db) throw new Error('Firebase is not configured');
+  if (!db) throw new Error('Recruitment service is unavailable.');
   const snap = await getDocs(
     query(collection(db, COLLECTION), where('archived', '==', false), orderBy('submittedAt', 'desc'), limit(1000)),
   );

@@ -138,8 +138,7 @@ function LoginPage({
 
         {!isFirebaseConfigured ? (
           <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs text-mist-300">
-            Firebase is not configured. Set <code className="text-gold-300">VITE_FIREBASE_*</code>{' '}
-            in <code className="text-gold-300">.env</code> to enable admin sign-in.
+            Admin sign-in is temporarily unavailable. Please contact the club team.
           </p>
         ) : null}
 

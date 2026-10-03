@@ -115,10 +115,10 @@ export default function AdminSettingsPage() {
           </div>
           <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-3">
             <span className="w-48 text-xs font-medium uppercase tracking-[0.1em] text-mist-400">
-              Firebase
+              Database
             </span>
             <span className={isFirebaseConfigured ? 'text-emerald-300' : 'text-amber-300'}>
-              {isFirebaseConfigured ? 'Configured' : 'Not configured'}
+              {isFirebaseConfigured ? 'Connected' : 'Not connected'}
             </span>
           </div>
         </div>
@@ -205,10 +205,9 @@ export default function AdminSettingsPage() {
           <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-400" aria-hidden="true" />
           <span>
             Built-in seed accounts:{' '}
-            <span className="text-mist-300">{SEED_ADMINS.join(', ')}</span>. Runtime admins are
-            stored in Firestore <code className="text-gold-300">admin_config/list</code> and
-            enforced in Firestore rules + the email API. After adding an account, they sign in
-            with the same Google email.
+            <span className="text-mist-300">{SEED_ADMINS.join(', ')}</span>. Additional admins you
+            add are stored securely and enforced across the portal. After adding an account, they
+            sign in with the same Google email.
           </span>
         </p>
       </SectionCard>

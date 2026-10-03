@@ -323,7 +323,7 @@ export default function AdminApplicationDetailPage() {
           <div>
             <h3 className="font-display text-lg font-semibold text-white">Status management</h3>
             <p className="text-sm text-mist-300">
-              Status changes are written directly to Firestore and require an authorized admin.
+              Status changes are saved immediately and require an authorized admin.
             </p>
           </div>
           <div className="flex w-full max-w-md items-end gap-2 sm:w-auto">

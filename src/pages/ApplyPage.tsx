@@ -1250,7 +1250,10 @@ export default function ApplyPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-4 pb-24 pt-6 sm:px-6 sm:pt-10">
+      <main
+        className="mx-auto max-w-4xl px-4 pb-28 pt-6 sm:px-6 sm:pt-10"
+        style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom))' }}
+      >
         {/* Sticky progress on mobile */}
         <div className="sticky top-16 z-30 -mx-4 mb-6 border-b border-white/5 bg-ink-900/95 px-4 py-3 backdrop-blur-xl sm:mx-0 sm:rounded-2xl sm:border sm:border-white/10 sm:bg-ink-850/80 sm:px-5">
           <ProgressBar

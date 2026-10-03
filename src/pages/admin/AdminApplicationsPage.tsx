@@ -101,7 +101,7 @@ export default function AdminApplicationsPage() {
         setHasMore(Boolean(result.nextCursor));
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : 'Failed to load applications from Firestore.';
+          err instanceof Error ? err.message : 'Failed to load applications. Please try again.';
         setError(message);
         push('error', 'Load failed', message);
       } finally {
@@ -149,7 +149,7 @@ export default function AdminApplicationsPage() {
         <div>
           <h2 className="font-display text-2xl font-bold text-white">Applications</h2>
           <p className="mt-1 text-sm text-mist-300">
-            Search, filter and review recruitment submissions stored in Firestore.
+            Search, filter and review recruitment submissions.
           </p>
         </div>
         <Button
@@ -300,71 +300,111 @@ export default function AdminApplicationsPage() {
           description="Adjust filters or wait for submissions through the public /apply form."
         />
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-white/10 bg-ink-850/70 shadow-card">
-          <table className="w-full min-w-[960px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-white/10 bg-ink-800/40 text-[11px] uppercase tracking-[0.12em] text-mist-400">
-                <th className="px-4 py-3 font-medium">Application</th>
-                <th className="px-4 py-3 font-medium">Applicant</th>
-                <th className="px-4 py-3 font-medium">Portfolio</th>
-                <th className="px-4 py-3 font-medium">Role</th>
-                <th className="px-4 py-3 font-medium">Year / Branch</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Email</th>
-                <th className="px-4 py-3 font-medium">Submitted</th>
-                <th className="px-4 py-3 font-medium">Preview</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((app) => (
-                <tr
-                  key={app.id}
-                  className="border-b border-white/5 transition hover:bg-white/[0.03] last:border-0"
-                >
-                  <td className="px-4 py-3 font-mono text-xs text-gold-300">{app.applicationId}</td>
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-white">{truncate(app.personal.fullName, 28)}</p>
-                    <p className="text-xs text-mist-400">{app.personal.registrationNumber}</p>
-                    <p className="text-xs text-mist-400">{app.personal.email}</p>
-                  </td>
-                  <td className="px-4 py-3 text-mist-200">
-                    {PORTFOLIO_SHORT_LABELS[app.application.portfolio]}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge className="bg-white/5 text-mist-100 ring-white/10">
-                      {app.application.role === 'CO_LEAD' ? 'Co-Lead' : 'Member'}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-mist-300">
-                    <p>{ACADEMIC_YEAR_LABELS[app.personal.academicYear]}</p>
-                    <p className="text-xs text-mist-400">
-                      {BRANCH_LABELS[app.personal.branch] ?? app.personal.branch}
+        <>
+          {/* Mobile cards */}
+          <div className="space-y-3 md:hidden">
+            {items.map((app) => (
+              <Link
+                key={app.id}
+                to={`/admin/applications/${app.id}`}
+                className="block rounded-2xl border border-white/10 bg-ink-850/70 p-4 shadow-card transition hover:border-gold-500/30"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-white">
+                      {app.personal.fullName}
                     </p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={app.status} label={STATUS_LABELS[app.status]} />
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge
-                      status={app.emailStatus}
-                      label={app.emailStatus.charAt(0).toUpperCase() + app.emailStatus.slice(1)}
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-xs text-mist-300">{formatDateTime(app.submittedAt)}</td>
-                  <td className="px-4 py-3">
-                    <Link
-                      to={`/admin/applications/${app.id}`}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-gold-500/15 px-2.5 py-1.5 text-xs font-semibold text-gold-200 ring-1 ring-gold-500/30 transition hover:bg-gold-500/25"
-                    >
-                      <Eye className="h-3.5 w-3.5" aria-hidden="true" />
-                      Open
-                    </Link>
-                  </td>
+                    <p className="font-mono text-xs text-gold-300">{app.applicationId}</p>
+                    <p className="truncate text-xs text-mist-400">
+                      {app.personal.registrationNumber} · {app.personal.email}
+                    </p>
+                  </div>
+                  <StatusBadge status={app.status} label={STATUS_LABELS[app.status]} />
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-mist-300">
+                  <Badge className="bg-white/5 text-mist-100 ring-white/10">
+                    {PORTFOLIO_SHORT_LABELS[app.application.portfolio]}
+                  </Badge>
+                  <Badge className="bg-white/5 text-mist-100 ring-white/10">
+                    {app.application.role === 'CO_LEAD' ? 'Co-Lead' : 'Member'}
+                  </Badge>
+                  <span className="text-mist-500">{formatDateTime(app.submittedAt)}</span>
+                  <span className="ml-auto inline-flex items-center gap-1 font-semibold text-gold-300">
+                    <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                    Open
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden overflow-x-auto rounded-2xl border border-white/10 bg-ink-850/70 shadow-card md:block">
+            <table className="w-full min-w-[960px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-white/10 bg-ink-800/40 text-[11px] uppercase tracking-[0.12em] text-mist-400">
+                  <th className="px-4 py-3 font-medium">Application</th>
+                  <th className="px-4 py-3 font-medium">Applicant</th>
+                  <th className="px-4 py-3 font-medium">Portfolio</th>
+                  <th className="px-4 py-3 font-medium">Role</th>
+                  <th className="px-4 py-3 font-medium">Year / Branch</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Email</th>
+                  <th className="px-4 py-3 font-medium">Submitted</th>
+                  <th className="px-4 py-3 font-medium">Preview</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {items.map((app) => (
+                  <tr
+                    key={app.id}
+                    className="border-b border-white/5 transition hover:bg-white/[0.03] last:border-0"
+                  >
+                    <td className="px-4 py-3 font-mono text-xs text-gold-300">{app.applicationId}</td>
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-white">{truncate(app.personal.fullName, 28)}</p>
+                      <p className="text-xs text-mist-400">{app.personal.registrationNumber}</p>
+                      <p className="text-xs text-mist-400">{app.personal.email}</p>
+                    </td>
+                    <td className="px-4 py-3 text-mist-200">
+                      {PORTFOLIO_SHORT_LABELS[app.application.portfolio]}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge className="bg-white/5 text-mist-100 ring-white/10">
+                        {app.application.role === 'CO_LEAD' ? 'Co-Lead' : 'Member'}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3 text-mist-300">
+                      <p>{ACADEMIC_YEAR_LABELS[app.personal.academicYear]}</p>
+                      <p className="text-xs text-mist-400">
+                        {BRANCH_LABELS[app.personal.branch] ?? app.personal.branch}
+                      </p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={app.status} label={STATUS_LABELS[app.status]} />
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusBadge
+                        status={app.emailStatus}
+                        label={app.emailStatus.charAt(0).toUpperCase() + app.emailStatus.slice(1)}
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-xs text-mist-300">{formatDateTime(app.submittedAt)}</td>
+                    <td className="px-4 py-3">
+                      <Link
+                        to={`/admin/applications/${app.id}`}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-gold-500/15 px-2.5 py-1.5 text-xs font-semibold text-gold-200 ring-1 ring-gold-500/30 transition hover:bg-gold-500/25"
+                      >
+                        <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                        Open
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {hasMore && !loading && items.length > 0 ? (
@@ -396,7 +436,7 @@ export default function AdminApplicationsPage() {
       <div className="flex items-center justify-between text-xs text-mist-500">
         <span>
           <ChevronLeft className="mr-1 inline h-3 w-3" aria-hidden="true" />
-          Firestore query · 20 per page · client-side search across loaded page
+          Showing 20 per page · search applies to the loaded page
         </span>
       </div>
     </div>

@@ -137,7 +137,7 @@ export default function AdminAnalyticsPage() {
       <div>
         <h2 className="font-display text-2xl font-bold text-white">Analytics</h2>
         <p className="mt-1 text-sm text-mist-300">
-          Aggregated insights computed from all non-archived applications in Firestore.
+          Aggregated insights from all current recruitment applications.
         </p>
       </div>
 

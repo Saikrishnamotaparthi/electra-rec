@@ -26,7 +26,7 @@ export async function signInWithGoogle(): Promise<{
   if (!auth || !isFirebaseConfigured) {
     return {
       ok: false,
-      error: 'Firebase is not configured. Set VITE_FIREBASE_* values in .env and restart the dev server.',
+      error: 'Admin sign-in is temporarily unavailable. Please contact the club team.',
     };
   }
   try {

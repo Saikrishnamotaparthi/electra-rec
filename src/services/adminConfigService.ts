@@ -107,7 +107,7 @@ export async function isAdminEmail(email: string | null | undefined): Promise<bo
 async function persistAdminEmails(emails: string[], actorEmail: string): Promise<string[]> {
   const ref = configRef();
   if (!ref) {
-    throw new Error('Firebase is not configured. Set VITE_FIREBASE_* in .env and restart.');
+    throw new Error('Admin settings are temporarily unavailable. Please try again later.');
   }
   const next = normalizeList(emails);
   const payload: AdminConfigSnapshot & { updatedAt: number; updatedBy: string } = {

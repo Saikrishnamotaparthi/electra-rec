@@ -21,7 +21,7 @@ export default function AdminExportsPage() {
     try {
       const apps = await fetchAllForExport();
       if (apps.length === 0) {
-        push('info', 'Nothing to export', 'No applications found in Firestore yet.');
+        push('info', 'Nothing to export', 'No applications have been submitted yet.');
         return;
       }
       fn(apps);
@@ -42,7 +42,7 @@ export default function AdminExportsPage() {
       <div>
         <h2 className="font-display text-2xl font-bold text-white">Excel exports</h2>
         <p className="mt-1 text-sm text-mist-300">
-          Download live application data from Firestore as branded Excel workbooks.
+          Download live application data as branded Excel workbooks.
         </p>
       </div>
 
@@ -101,8 +101,7 @@ export default function AdminExportsPage() {
       <SectionCard title="Notes">
         <ul className="list-disc space-y-2 pl-5 text-sm text-mist-300">
           <li>
-            Exports include all non-archived applications currently stored in the Firestore{' '}
-            <code className="text-gold-300">applications</code> collection.
+            Exports include all current recruitment applications stored in the system.
           </li>
           <li>Use Filters on the Applications page if you need a subset — this page always exports the full dataset.</li>
           <li>File names follow the recruitment year branding used across the club.</li>
@@ -119,7 +118,7 @@ export default function AdminExportsPage() {
         <EmptyState
           icon={<FileSpreadsheet className="h-8 w-8" />}
           title="Ready when you are"
-          description="Click any export button to pull live data from Firestore and download an Excel file."
+          description="Click any export button to pull live data and download an Excel file."
         />
       ) : null}
     </div>
