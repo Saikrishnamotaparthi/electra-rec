@@ -1,0 +1,47 @@
+rules_version = '2';
+
+// G-ELECTRA Recruitment Platform — Firestore security rules
+// Public: create-only submissions on /applications.
+// Admins: read + update, enforced via hardcoded allowlist below.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Shared helper: check if the caller is an authorized admin.
+    function isAuthorizedAdmin() {
+      return request.auth != null
+        && request.auth.token.email in [
+          'hello@dotfreelancer.in',
+          'gelectra@gitam.edu'
+        ];
+    }
+
+    // Applications collection
+    match /applications/{docId} {
+      // Anyone (including anonymous auth) can CREATE a new application.
+      allow create: if true;
+
+      // Only authorized admins can READ application documents.
+      allow get, list: if isAuthorizedAdmin();
+
+      // Admins: full update (status, archive, notes).
+      // Public: only email delivery tracking fields, so the submitter /
+      // local API middleware can record sent|failed without admin SDK.
+      allow update: if isAuthorizedAdmin()
+        || request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'emailStatus',
+          'emailError',
+          'lastEmailAttemptAt',
+          'updatedAt'
+        ]);
+
+      // No client-side deletes — archive via update instead.
+      allow delete: if false;
+    }
+
+    // Settings document (optional, admin-managed).
+    match /settings/{docId} {
+      allow read: if isAuthorizedAdmin();
+      allow write: if isAuthorizedAdmin();
+    }
+  }
+}

@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ink-900 text-mist-100 font-body antialiased;
+    margin: 0;
+    min-height: 100vh;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: rgba(233, 161, 52, 0.35);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid #EFAF3E;
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0C1517;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #2E4549;
+    border-radius: 999px;
+    border: 2px solid #0C1517;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3D565B;
+  }
+}
+
+@layer components {
+  .field-input {
+    @apply w-full rounded-xl border bg-ink-850/80 px-3.5 text-sm text-white placeholder:text-mist-400 shadow-card transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500/60 disabled:opacity-60;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .mask-fade-b {
+    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  }
+}
