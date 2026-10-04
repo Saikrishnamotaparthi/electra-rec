@@ -9,6 +9,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ok: true,
     service: 'g-electra-recruitment-api',
     emailConfigured: Boolean(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD),
-    firebaseAdminConfigured: Boolean(process.env.FIREBASE_SERVICE_ACCOUNT),
+    firebaseAdminConfigured: Boolean(
+      process.env.FIREBASE_SERVICE_ACCOUNT ?? process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
+    ),
   });
 }

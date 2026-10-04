@@ -150,10 +150,10 @@ export function buildConfirmationSubject(applicationId: string): string {
   return `Application received — ${applicationId} | G-ELECTRA Smart Systems Club`;
 }
 
-export async function sendConfirmationEmail(payload: ApplicationEmailPayload): Promise<void> {
+export async function sendConfirmationEmail(payload: ApplicationEmailPayload): Promise<string> {
   const transporter = getMailer();
   const from = process.env.GMAIL_USER ?? 'gelectra@gitam.edu';
-  await transporter.sendMail({
+  const info = await transporter.sendMail({
     from: `"G-ELECTRA Recruitment" <${from}>`,
     to: payload.email,
     replyTo: from,
@@ -174,4 +174,6 @@ export async function sendConfirmationEmail(payload: ApplicationEmailPayload): P
       '— Team G-ELECTRA, GITAM Hyderabad',
     ].join('\n'),
   });
+
+  return typeof info?.messageId === 'string' ? info.messageId : '';
 }

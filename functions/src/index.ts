@@ -161,10 +161,14 @@ export const submitApplication = onCall(
 
     await docRef.set(document);
 
-    // Send confirmation email
+    // Send confirmation email. Delivery and status bookkeeping are tracked
+    // separately so a Firestore write failure never hides a delivered email.
+    let emailStatus = 'sent';
+    let emailError: string | null = null;
+    let messageId = '';
     try {
       const transport = getTransport();
-      await transport.sendMail({
+      const info = await transport.sendMail({
         from: `"G-ELECTRA Recruitment" <${GMAIL_USER.value()}>`,
         to: email,
         subject: `Your G-ELECTRA application has been received (${applicationId})`,
@@ -176,13 +180,24 @@ export const submitApplication = onCall(
           email,
         }),
       });
-      await docRef.update({ emailStatus: 'sent', lastEmailAttemptAt: Date.now() });
+      messageId = info.messageId;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Email delivery failed';
-      await docRef.update({ emailStatus: 'failed', emailError: message, lastEmailAttemptAt: Date.now() });
+      emailStatus = 'failed';
+      emailError = err instanceof Error ? err.message : 'Email delivery failed';
     }
 
-    return { ok: true, docId: docRef.id, applicationId };
+    try {
+      await docRef.update({ emailStatus, emailError, lastEmailAttemptAt: Date.now() });
+    } catch (err) {
+      console.error('submitApplication: stored but email status update failed', {
+        docId: docRef.id,
+        applicationId,
+        emailStatus,
+        error: err instanceof Error ? err.message : 'Unknown error',
+      });
+    }
+
+    return { ok: true, docId: docRef.id, applicationId, emailStatus, messageId };
   },
 );
 
@@ -217,7 +232,7 @@ export const resendConfirmationEmail = onCall(
 
     try {
       const transport = getTransport();
-      await transport.sendMail({
+      const info = await transport.sendMail({
         from: `"G-ELECTRA Recruitment" <${GMAIL_USER.value()}>`,
         to: data.personal.email,
         subject: `Your G-ELECTRA application has been received (${data.applicationId})`,
@@ -229,11 +244,26 @@ export const resendConfirmationEmail = onCall(
           email: data.personal.email,
         }),
       });
-      await docRef.update({ emailStatus: 'sent', emailError: null, lastEmailAttemptAt: Date.now() });
-      return { ok: true };
+      try {
+        await docRef.update({ emailStatus: 'sent', emailError: null, lastEmailAttemptAt: Date.now() });
+      } catch (err) {
+        console.error('resendConfirmationEmail: delivered but status update failed', {
+          docId,
+          error: err instanceof Error ? err.message : 'Unknown error',
+        });
+      }
+      return { ok: true, messageId: info.messageId };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Email delivery failed';
-      await docRef.update({ emailStatus: 'failed', emailError: message, lastEmailAttemptAt: Date.now() });
+      try {
+        await docRef.update({ emailStatus: 'failed', emailError: message, lastEmailAttemptAt: Date.now() });
+      } catch (statusErr) {
+        console.error('resendConfirmationEmail: delivery failed and status update failed', {
+          docId,
+          deliveryError: message,
+          error: statusErr instanceof Error ? statusErr.message : 'Unknown error',
+        });
+      }
       throw new HttpsError('internal', message);
     }
   },
@@ -286,8 +316,13 @@ export const updateApplicationStatus = onCall(
         }),
       });
       await docRef.update({ emailStatus: 'sent', emailError: null, lastEmailAttemptAt: Date.now() });
-    } catch {
+    } catch (err) {
       // Non-fatal: status is already updated
+      console.error('updateApplicationStatus: status notification failed', {
+        docId,
+        status,
+        error: err instanceof Error ? err.message : 'Unknown error',
+      });
     }
 
     return { ok: true };

@@ -44,23 +44,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
+  let adminEmail: string;
   try {
-    const adminEmail = await verifyAdminIdToken(parsed.data.idToken);
-    const payload: ApplicationEmailPayload = {
-      applicationId: parsed.data.applicationId,
-      fullName: parsed.data.fullName,
-      registrationNumber: parsed.data.registrationNumber,
-      email: parsed.data.email.toLowerCase(),
-      phone: parsed.data.phone,
-      academicYear: parsed.data.academicYear,
-      branch: parsed.data.branch,
-      portfolio: parsed.data.portfolio,
-      role: parsed.data.role,
-    };
+    adminEmail = await verifyAdminIdToken(parsed.data.idToken);
+  } catch (err) {
+    console.error('resend-application-email: auth failed', err);
+    const message = err instanceof Error ? err.message : 'Not authorized to resend email.';
+    const status = /not configured/i.test(message) ? 503 : 403;
+    return res.status(status).json({ ok: false, error: message });
+  }
 
+  const payload: ApplicationEmailPayload = {
+    applicationId: parsed.data.applicationId,
+    fullName: parsed.data.fullName,
+    registrationNumber: parsed.data.registrationNumber,
+    email: parsed.data.email.toLowerCase(),
+    phone: parsed.data.phone,
+    academicYear: parsed.data.academicYear,
+    branch: parsed.data.branch,
+    portfolio: parsed.data.portfolio,
+    role: parsed.data.role,
+  };
+
+  try {
     await sendConfirmationEmail(payload);
-    await markEmailResult(parsed.data.docId, 'sent', null);
-    return res.status(200).json({ ok: true, sentBy: adminEmail });
   } catch (err) {
     console.error('resend-application-email', err);
     const message = err instanceof Error ? err.message : 'Failed to resend confirmation email.';
@@ -69,7 +76,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch {
       // Firestore admin may be unavailable; still return the email error.
     }
-    const status = /authorized|not configured|verify/i.test(message) ? 403 : 502;
-    return res.status(status).json({ ok: false, error: message });
+    return res.status(502).json({ ok: false, error: message });
   }
+
+  try {
+    await markEmailResult(parsed.data.docId, 'sent', null);
+  } catch (err) {
+    // The email was already delivered; never fail the request over bookkeeping.
+    console.error('resend-application-email: delivered but status update failed', err);
+  }
+
+  return res.status(200).json({ ok: true, sentBy: adminEmail });
 }

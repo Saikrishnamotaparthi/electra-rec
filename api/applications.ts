@@ -67,7 +67,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(503).json({
       ok: false,
       error:
-        'Server is not configured. Set FIREBASE_SERVICE_ACCOUNT, GMAIL_USER, and GMAIL_APP_PASSWORD on Vercel.',
+        'Firestore admin is not configured. Set FIREBASE_SERVICE_ACCOUNT on Vercel as a single-line JSON value (Settings > Environment Variables), then redeploy.',
     });
   }
 
@@ -150,12 +150,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       emailError = err instanceof Error ? err.message : 'Failed to send confirmation email.';
     }
 
-    await ref.update({
-      emailStatus,
-      emailError,
-      lastEmailAttemptAt: Date.now(),
-      updatedAt: Date.now(),
-    });
+    try {
+      await ref.update({
+        emailStatus,
+        emailError,
+        lastEmailAttemptAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+    } catch (err) {
+      // Application is already stored and the email was already attempted.
+      // Report success so the client does not retry and create a duplicate.
+      console.error('create-application: stored but status update failed', err);
+    }
 
     return res.status(201).json({
       ok: true,

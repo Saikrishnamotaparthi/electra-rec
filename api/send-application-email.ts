@@ -20,8 +20,24 @@ const payloadSchema = z.object({
 
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
 
+const MAX_RATE_BUCKETS = 5_000;
+
+function pruneRateBuckets(now: number): void {
+  if (rateBuckets.size <= MAX_RATE_BUCKETS) return;
+  // Drop expired windows first; Map iteration order is insertion order.
+  for (const [key, bucket] of rateBuckets) {
+    if (bucket.resetAt <= now) rateBuckets.delete(key);
+  }
+  // Still over budget: evict the oldest entries so the map cannot grow without bound.
+  for (const key of rateBuckets.keys()) {
+    if (rateBuckets.size <= MAX_RATE_BUCKETS) break;
+    rateBuckets.delete(key);
+  }
+}
+
 function allowRequest(key: string, limit = 8, windowMs = 60_000): boolean {
   const now = Date.now();
+  pruneRateBuckets(now);
   const bucket = rateBuckets.get(key);
   if (!bucket || bucket.resetAt < now) {
     rateBuckets.set(key, { count: 1, resetAt: now + windowMs });
@@ -81,12 +97,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     existingTeam: parsed.data.existingTeam ?? null,
   };
 
+  let messageId: string;
   try {
-    await sendConfirmationEmail(payload);
-    if (parsed.data.docId) {
-      await markEmailResult(parsed.data.docId, 'sent', null);
-    }
-    return res.status(200).json({ ok: true, messageId: null });
+    messageId = await sendConfirmationEmail(payload);
   } catch (err) {
     console.error('send-application-email', err);
     const message = err instanceof Error ? err.message : 'Failed to send confirmation email.';
@@ -99,4 +112,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     return res.status(502).json({ ok: false, error: message });
   }
+
+  if (parsed.data.docId) {
+    try {
+      await markEmailResult(parsed.data.docId, 'sent', null);
+    } catch (err) {
+      // The email was already delivered; never fail the request over bookkeeping.
+      console.error('send-application-email: delivered but status update failed', err);
+    }
+  }
+
+  return res.status(200).json({ ok: true, messageId: messageId || null });
 }
