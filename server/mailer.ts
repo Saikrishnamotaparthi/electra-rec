@@ -17,6 +17,8 @@ export type ApplicationEmailPayload = {
 
 let cachedTransporter: Transporter | null = null;
 
+const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/G2KLWd47k8D8ADBq1TsZiy';
+
 export function getMailer(): Transporter {
   if (cachedTransporter) return cachedTransporter;
 
@@ -138,6 +140,28 @@ export function buildConfirmationHtml(payload: ApplicationEmailPayload): string 
                 </p>
               </td>
             </tr>
+            <tr>
+              <td style="padding:4px 32px 28px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:rgba(37,211,102,0.08);border:1px solid rgba(37,211,102,0.28);border-radius:12px;">
+                  <tr>
+                    <td style="padding:18px;">
+                      <p style="margin:0;color:#25D366;font-size:11px;letter-spacing:0.14em;font-weight:700;">WHATSAPP GROUP</p>
+                      <p style="margin:8px 0 0;color:#e2e8f0;font-size:14px;line-height:1.6;">
+                        Join the G-ELECTRA WhatsApp group for announcements, interview schedules, and
+                        recruitment updates — they are posted there first.
+                      </p>
+                      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:14px 0 0;">
+                        <tr>
+                          <td style="border-radius:10px;background-color:#25D366;">
+                            <a href="${WHATSAPP_GROUP_URL}" target="_blank" rel="noreferrer noopener" style="display:inline-block;padding:12px 24px;font-size:14px;font-weight:700;color:#052e16;text-decoration:none;border-radius:10px;">Join WhatsApp Group</a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
           </table>
         </td>
       </tr>
@@ -171,6 +195,10 @@ export async function sendConfirmationEmail(payload: ApplicationEmailPayload): P
       `Role: ${payload.role}`,
       '',
       'Please save this ID. The recruitment team will contact you if shortlisted.',
+      '',
+      'Join our WhatsApp group for announcements, interview schedules, and recruitment updates:',
+      WHATSAPP_GROUP_URL,
+      '',
       '— Team G-ELECTRA, GITAM Hyderabad',
     ].join('\n'),
   });

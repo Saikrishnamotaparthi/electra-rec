@@ -372,6 +372,9 @@ export function computeStats(apps: ApplicationDocument[]): ApplicationStats {
   };
   const byBranch: ApplicationStats['byBranch'] = {
     CSE: 0,
+    CSE_AIML: 0,
+    CSE_DS: 0,
+    CSE_CS: 0,
     ECE: 0,
     ECE_VLSI: 0,
     EECE: 0,

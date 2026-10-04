@@ -11,6 +11,7 @@ import {
   FileCheck2,
   Info,
   Link2,
+  MessageCircle,
   ShieldCheck,
 } from 'lucide-react';
 import {
@@ -23,6 +24,9 @@ import {
   LOGO_PATH,
   PORTFOLIO_LABELS,
   ROLE_LABELS,
+  type SelectablePortfolio,
+  WHATSAPP_GROUP_LABEL,
+  WHATSAPP_GROUP_URL,
 } from '@/constants';
 import {
   ROLE,
@@ -349,7 +353,7 @@ export default function ApplyPage() {
   }, [goToStep, stepIndex]);
 
   const onSelectPortfolio = useCallback(
-    (p: Portfolio) => {
+    (p: SelectablePortfolio) => {
       updateDraft({ portfolio: p });
       setLocalErrors((e) => ({ ...e, portfolio: '' }));
     },
@@ -581,7 +585,10 @@ export default function ApplyPage() {
     >
       {localErrors.portfolio ? <FormFieldError message={localErrors.portfolio} /> : null}
       <div className="mt-4">
-        <PortfolioList selected={draft.portfolio as Portfolio | null} onSelect={onSelectPortfolio} />
+        <PortfolioList
+          selected={draft.portfolio as SelectablePortfolio | null}
+          onSelect={onSelectPortfolio}
+        />
       </div>
       {draft.portfolio ? (
         <p className="mt-4 rounded-xl border border-gold-500/20 bg-gold-500/10 px-4 py-3 text-sm text-gold-100">
@@ -1188,6 +1195,24 @@ export default function ApplyPage() {
           We will review your application and communicate further updates through your registered
           email.
         </p>
+
+        <div className="mt-6 rounded-2xl border border-mist-400/20 bg-white/5 p-5 text-left">
+          <p className="text-sm font-semibold text-white">
+            Join the G-ELECTRA WhatsApp group
+          </p>
+          <p className="mt-1 text-sm text-mist-300">
+            Announcements, interview schedules, and recruitment updates are posted there first.
+          </p>
+          <a
+            href={WHATSAPP_GROUP_URL}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="mt-3 inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-5 text-sm font-bold text-emerald-200 transition-colors hover:bg-emerald-400/20"
+          >
+            <MessageCircle className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" />
+            {WHATSAPP_GROUP_LABEL}
+          </a>
+        </div>
 
         <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link

@@ -18,6 +18,9 @@ export const APPLICATION_ID_PREFIX = 'GE26';
 export const LOGO_PATH = '/logo.png';
 export const LOGO_ALT = 'G-ELECTRA Smart Systems Club logo';
 
+export const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/G2KLWd47k8D8ADBq1TsZiy';
+export const WHATSAPP_GROUP_LABEL = 'Join our WhatsApp group';
+
 export const PORTFOLIO_LABELS: Record<Portfolio, string> = {
   MARKETING: 'Marketing Team',
   CONTENT: 'Content Team',
@@ -60,6 +63,18 @@ export const PORTFOLIO_ORDER: Portfolio[] = [
   'SOFTWARE',
 ];
 
+/**
+ * Portfolios offered for new submissions.
+ * `WEB_DEVELOPER` is intentionally excluded: it stays in `PORTFOLIO_ORDER`,
+ * labels and schemas so historical applications keep rendering correctly in
+ * admin views, analytics and exports.
+ */
+export type SelectablePortfolio = Exclude<Portfolio, 'WEB_DEVELOPER'>;
+
+export const PORTFOLIO_SELECTABLE: SelectablePortfolio[] = PORTFOLIO_ORDER.filter(
+  (p): p is SelectablePortfolio => p !== 'WEB_DEVELOPER',
+);
+
 export const ROLE_LABELS: Record<Role, string> = {
   MEMBER: 'Member',
   CO_LEAD: 'Co-Lead',
@@ -75,6 +90,9 @@ export const ACADEMIC_YEAR_LABELS: Record<AcademicYear, string> = {
 
 export const BRANCH_LABELS: Record<Branch, string> = {
   CSE: 'CSE',
+  CSE_AIML: 'CSE [AI & ML]',
+  CSE_DS: 'CSE [Data Science]',
+  CSE_CS: 'CSE [Cyber Security]',
   ECE: 'ECE',
   ECE_VLSI: 'ECE [VLSI]',
   EECE: 'EECE',

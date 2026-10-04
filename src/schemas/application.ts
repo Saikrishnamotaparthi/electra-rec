@@ -42,6 +42,9 @@ export const personalSchema = z.object({
   branch: z.enum(
     [
       BRANCH.CSE,
+      BRANCH.CSE_AIML,
+      BRANCH.CSE_DS,
+      BRANCH.CSE_CS,
       BRANCH.ECE,
       BRANCH.ECE_VLSI,
       BRANCH.EECE,
@@ -61,7 +64,6 @@ export const portfolioSchema = z.object({
       PORTFOLIO.MARKETING,
       PORTFOLIO.CONTENT,
       PORTFOLIO.CREATIVE_DESIGN,
-      PORTFOLIO.WEB_DEVELOPER,
       PORTFOLIO.HARDWARE,
       PORTFOLIO.SOFTWARE,
     ],

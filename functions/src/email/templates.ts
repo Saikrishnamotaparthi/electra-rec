@@ -9,6 +9,8 @@ const BRAND = {
 
 const logoUrl = 'https://raw.githubusercontent.com/g-electra/assets/main/logo.png';
 
+const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/G2KLWd47k8D8ADBq1TsZiy';
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -91,6 +93,26 @@ export function renderConfirmationEmail(input: ConfirmationEmailInput): string {
               <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#3A4F53;">
                 Please save your <strong>Application ID</strong> for future reference. You will receive further updates at this email address as the recruitment process progresses.
               </p>
+
+              <!-- WhatsApp group -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F2FBF4;border:1px solid #C8EFD4;border-radius:12px;margin:0 0 24px;">
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <p style="margin:0 0 8px;font-size:12px;font-weight:700;color:#128C4A;letter-spacing:0.06em;text-transform:uppercase;">WhatsApp Group</p>
+                    <p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#3A4F53;">
+                      Join the G-ELECTRA WhatsApp group for announcements, interview schedules and
+                      recruitment updates — they are posted there first.
+                    </p>
+                    <table role="presentation" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="border-radius:8px;background-color:#25D366;">
+                          <a href="${WHATSAPP_GROUP_URL}" target="_blank" rel="noreferrer noopener" style="display:inline-block;padding:12px 24px;font-size:14px;font-weight:700;color:#052E16;text-decoration:none;border-radius:8px;">Join WhatsApp Group</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
 
               <!-- CTA -->
               <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 0;">

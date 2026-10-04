@@ -9,10 +9,16 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const academicYearEnum = z.enum(['FIRST', 'SECOND', 'THIRD', 'FOURTH', 'OTHER']);
 const branchEnum = z.enum([
-  'CSE', 'ECE', 'ECE_VLSI', 'EECE', 'MECHANICAL', 'MECHANICAL_ROBOTICS', 'AEROSPACE', 'CIVIL', 'OTHER',
+  'CSE',
+  'CSE_AIML',
+  'CSE_DS',
+  'CSE_CS',
+  'ECE', 'ECE_VLSI', 'EECE', 'MECHANICAL', 'MECHANICAL_ROBOTICS', 'AEROSPACE', 'CIVIL', 'OTHER',
 ]);
+// `WEB_DEVELOPER` is intentionally not accepted for new submissions; it stays a
+// valid stored value so historical applications keep rendering in admin views.
 const portfolioEnum = z.enum([
-  'MARKETING', 'CONTENT', 'CREATIVE_DESIGN', 'WEB_DEVELOPER', 'HARDWARE', 'SOFTWARE',
+  'MARKETING', 'CONTENT', 'CREATIVE_DESIGN', 'HARDWARE', 'SOFTWARE',
 ]);
 const roleEnum = z.enum(['MEMBER', 'CO_LEAD']);
 const existingTeamEnum = z.enum(['MARKETING', 'CONTENT', 'CREATIVE_DESIGN']);

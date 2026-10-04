@@ -5,6 +5,10 @@ import { sendConfirmationEmail } from '../server/mailer.js';
 
 const APPLICATION_ID_PREFIX = 'GE26';
 
+// `WEB_DEVELOPER` remains a valid stored value for historical applications but is
+// no longer open for new submissions.
+const CLOSED_PORTFOLIOS = new Set(['WEB_DEVELOPER']);
+
 const payloadSchema = z.object({
   personal: z.object({
     fullName: z.string().min(2).max(120),
@@ -15,7 +19,13 @@ const payloadSchema = z.object({
     branch: z.string().min(1).max(60),
   }),
   application: z.object({
-    portfolio: z.string().min(1).max(80),
+    portfolio: z
+      .string()
+      .min(1)
+      .max(80)
+      .refine((value) => !CLOSED_PORTFOLIOS.has(value), {
+        message: 'This portfolio is no longer accepting applications.',
+      }),
     role: z.string().min(1).max(40),
     existingMember: z.union([z.boolean(), z.null()]).optional(),
     existingTeam: z.union([z.string().max(80), z.null()]).optional(),

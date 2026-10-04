@@ -5,7 +5,8 @@ import type { Portfolio } from '@/types';
 import {
   PORTFOLIO_DESCRIPTIONS,
   PORTFOLIO_LABELS,
-  PORTFOLIO_ORDER,
+  PORTFOLIO_SELECTABLE,
+  type SelectablePortfolio,
 } from '@/constants';
 import { PenTool, Code2, Cpu, FileText, Megaphone, Palette } from 'lucide-react';
 
@@ -24,9 +25,9 @@ export function PortfolioCard({
   onSelect,
   disabled,
 }: {
-  portfolio: Portfolio;
+  portfolio: SelectablePortfolio;
   selected: boolean;
-  onSelect: (p: Portfolio) => void;
+  onSelect: (p: SelectablePortfolio) => void;
   disabled?: boolean;
 }) {
   return (
@@ -89,12 +90,12 @@ export function PortfolioCard({
 }
 
 export function PortfolioList(props: {
-  selected: Portfolio | null;
-  onSelect: (p: Portfolio) => void;
+  selected: SelectablePortfolio | null;
+  onSelect: (p: SelectablePortfolio) => void;
 }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
-      {PORTFOLIO_ORDER.map((p) => (
+      {PORTFOLIO_SELECTABLE.map((p) => (
         <PortfolioCard
           key={p}
           portfolio={p}

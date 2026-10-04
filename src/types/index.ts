@@ -25,6 +25,9 @@ export type AcademicYear = (typeof ACADEMIC_YEAR)[keyof typeof ACADEMIC_YEAR];
 
 export const BRANCH = {
   CSE: 'CSE',
+  CSE_AIML: 'CSE_AIML',
+  CSE_DS: 'CSE_DS',
+  CSE_CS: 'CSE_CS',
   ECE: 'ECE',
   ECE_VLSI: 'ECE_VLSI',
   EECE: 'EECE',
