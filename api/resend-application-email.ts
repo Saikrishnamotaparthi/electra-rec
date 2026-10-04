@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { sendConfirmationEmail, type ApplicationEmailPayload } from './lib/mailer.js';
-import { markEmailResult, verifyAdminIdToken } from './lib/firebaseAdmin.js';
+import { sendConfirmationEmail, type ApplicationEmailPayload } from '../server/mailer.js';
+import { markEmailResult, verifyAdminIdToken } from '../server/firebaseAdmin.js';
 
 const payloadSchema = z.object({
   idToken: z.string().min(20).max(4000),

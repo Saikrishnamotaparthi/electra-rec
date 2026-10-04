@@ -60,7 +60,7 @@ function localApiPlugin(): Plugin {
   }
 
   async function loadMailer(server: import('vite').ViteDevServer) {
-    return server.ssrLoadModule('/api/lib/mailer.ts') as Promise<{
+    return server.ssrLoadModule('/server/mailer.ts') as Promise<{
       sendConfirmationEmail: (payload: {
         applicationId: string;
         fullName: string;
@@ -78,7 +78,7 @@ function localApiPlugin(): Plugin {
   }
 
   async function loadAdmin(server: import('vite').ViteDevServer) {
-    return server.ssrLoadModule('/api/lib/firebaseAdmin.ts') as Promise<{
+    return server.ssrLoadModule('/server/firebaseAdmin.ts') as Promise<{
       getFirestoreClient: () => {
         collection: (name: string) => {
           add: (data: unknown) => Promise<{

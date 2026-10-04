@@ -16,5 +16,5 @@
     "composite": true,
     "types": ["node"]
   },
-  "include": ["api"]
+  "include": ["api", "server"]
 }
