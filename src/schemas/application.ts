@@ -7,7 +7,16 @@ import {
   EXISTING_TEAM,
 } from '@/types';
 
-const phoneRegex = /^(\+91[\-\s]?)?[6-9]\d{9}$/;
+// Exactly 10 digits, no letters, separators or country code.
+export const REGISTRATION_NUMBER_REGEX = /^\d{10}$/;
+export const CONTACT_NUMBER_REGEX = /^\d{10}$/;
+// Applicants may only use an official GITAM mailbox.
+export const GITAM_EMAIL_REGEX = /^[^\s@]+@(gitam\.edu|student\.gitam\.edu)$/;
+
+export const REGISTRATION_NUMBER_ERROR = 'Registration number must be exactly 10 digits';
+export const CONTACT_NUMBER_ERROR = 'Contact number must be exactly 10 digits';
+export const GITAM_EMAIL_ERROR =
+  'Use your official GITAM email (@gitam.edu or @student.gitam.edu)';
 
 export const personalSchema = z.object({
   fullName: z
@@ -18,23 +27,19 @@ export const personalSchema = z.object({
   registrationNumber: z
     .string()
     .transform((v) => v.trim().toUpperCase().replace(/\s+/g, ''))
-    .refine((v) => v.length >= 3, 'Please enter a valid registration number')
-    .refine((v) => v.length <= 30, 'Registration number is too long')
-    .refine((v) => /^[A-Z0-9\-_/.]+$/i.test(v), 'Registration number contains invalid characters'),
+    .refine((v) => v.length > 0, 'Registration number is required')
+    .refine((v) => REGISTRATION_NUMBER_REGEX.test(v), REGISTRATION_NUMBER_ERROR),
   phone: z
     .string()
     .transform((v) => v.trim().replace(/\s+/g, ''))
-    .refine((v) => phoneRegex.test(v), 'Enter a valid 10-digit Indian mobile number'),
+    .refine((v) => v.length > 0, 'Contact number is required')
+    .refine((v) => CONTACT_NUMBER_REGEX.test(v), CONTACT_NUMBER_ERROR),
   email: z
     .string()
     .trim()
     .toLowerCase()
-    .refine((v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), 'Enter a valid email address')
-    .refine(
-      (v) => /@?(gitam\.edu|gitam\.in)$/i.test(v) || /^[^\s@]+@(gitam|student)\./i.test(v) || true,
-      // Soft preference for GITAM email — still accept unusual valid emails.
-      'Enter a valid email address',
-    ),
+    .refine((v) => v.length > 0, 'Email is required')
+    .refine((v) => GITAM_EMAIL_REGEX.test(v), GITAM_EMAIL_ERROR),
   academicYear: z.enum(
     [ACADEMIC_YEAR.FIRST, ACADEMIC_YEAR.SECOND, ACADEMIC_YEAR.THIRD, ACADEMIC_YEAR.FOURTH, ACADEMIC_YEAR.OTHER],
     { message: 'Select your academic year' },
@@ -75,7 +80,13 @@ export const roleSchema = z.object({
   role: z.enum([ROLE.MEMBER, ROLE.CO_LEAD], { message: 'Select how you want to apply' }),
   existingMember: z.boolean().nullable().optional(),
   existingTeam: z
-    .enum([EXISTING_TEAM.MARKETING, EXISTING_TEAM.CONTENT, EXISTING_TEAM.CREATIVE_DESIGN])
+    .enum([
+      EXISTING_TEAM.MARKETING,
+      EXISTING_TEAM.CONTENT,
+      EXISTING_TEAM.CREATIVE_DESIGN,
+      EXISTING_TEAM.HARDWARE,
+      EXISTING_TEAM.SOFTWARE,
+    ])
     .nullable()
     .optional(),
 });

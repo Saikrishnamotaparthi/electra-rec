@@ -9,15 +9,53 @@ const APPLICATION_ID_PREFIX = 'GE26';
 // no longer open for new submissions.
 const CLOSED_PORTFOLIOS = new Set(['WEB_DEVELOPER']);
 
+// Mirrors src/schemas/application.ts — kept local so this route has no build-time
+// dependency on the React app's path aliases.
+const REGISTRATION_NUMBER_REGEX = /^\d{10}$/;
+const CONTACT_NUMBER_REGEX = /^\d{10}$/;
+const GITAM_EMAIL_REGEX = /^[^\s@]+@(gitam\.edu|student\.gitam\.edu)$/;
+
+const personalSchema = z.object({
+  fullName: z.string().min(2).max(120),
+  registrationNumber: z
+    .string()
+    .trim()
+    .transform((value) => value.toUpperCase().replace(/\s+/g, ''))
+    .pipe(
+      z
+        .string()
+        .min(1, 'Registration number is required')
+        .regex(REGISTRATION_NUMBER_REGEX, 'Registration number must be exactly 10 digits'),
+    ),
+  phone: z
+    .string()
+    .trim()
+    .transform((value) => value.replace(/\s+/g, ''))
+    .pipe(
+      z
+        .string()
+        .min(1, 'Contact number is required')
+        .regex(CONTACT_NUMBER_REGEX, 'Contact number must be exactly 10 digits'),
+    ),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(
+      z
+        .string()
+        .min(1, 'Email is required')
+        .regex(
+          GITAM_EMAIL_REGEX,
+          'Use your official GITAM email (@gitam.edu or @student.gitam.edu)',
+        ),
+    ),
+  academicYear: z.string().min(1).max(40),
+  branch: z.string().min(1).max(60),
+});
+
 const payloadSchema = z.object({
-  personal: z.object({
-    fullName: z.string().min(2).max(120),
-    registrationNumber: z.string().min(2).max(40),
-    phone: z.string().min(5).max(30),
-    email: z.string().email().max(160),
-    academicYear: z.string().min(1).max(40),
-    branch: z.string().min(1).max(60),
-  }),
+  personal: personalSchema,
   application: z.object({
     portfolio: z
       .string()

@@ -6,8 +6,9 @@ const zod_1 = require("zod");
 // ---------------------------------------------------------------------------
 // Shared validation helpers (mirrors the frontend schemas)
 // ---------------------------------------------------------------------------
-const phoneRegex = /^(\+91[\-\s]?)?[6-9]\d{9}$/;
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^\d{10}$/;
+const registrationRegex = /^\d{10}$/;
+const gitamEmailRegex = /^[^\s@]+@(gitam\.edu|student\.gitam\.edu)$/;
 const academicYearEnum = zod_1.z.enum(['FIRST', 'SECOND', 'THIRD', 'FOURTH', 'OTHER']);
 const branchEnum = zod_1.z.enum([
     'CSE',
@@ -22,12 +23,35 @@ const portfolioEnum = zod_1.z.enum([
     'MARKETING', 'CONTENT', 'CREATIVE_DESIGN', 'HARDWARE', 'SOFTWARE',
 ]);
 const roleEnum = zod_1.z.enum(['MEMBER', 'CO_LEAD']);
-const existingTeamEnum = zod_1.z.enum(['MARKETING', 'CONTENT', 'CREATIVE_DESIGN']);
+const existingTeamEnum = zod_1.z.enum([
+    'MARKETING', 'CONTENT', 'CREATIVE_DESIGN', 'HARDWARE', 'SOFTWARE',
+]);
 const personalSchema = zod_1.z.object({
     fullName: zod_1.z.string().trim().min(1, 'This field is required').max(100, 'Name must be 100 characters or fewer'),
-    registrationNumber: zod_1.z.string().trim().transform((v) => v.toUpperCase().replace(/\s+/g, '')).pipe(zod_1.z.string().min(3, 'Enter a valid registration number')),
-    phone: zod_1.z.string().trim().pipe(zod_1.z.string().regex(phoneRegex, 'Enter a valid 10-digit Indian mobile number')),
-    email: zod_1.z.string().trim().toLowerCase().pipe(zod_1.z.string().regex(emailRegex, 'Enter a valid email address')),
+    registrationNumber: zod_1.z
+        .string()
+        .trim()
+        .transform((v) => v.toUpperCase().replace(/\s+/g, ''))
+        .pipe(zod_1.z
+        .string()
+        .min(1, 'Registration number is required')
+        .regex(registrationRegex, 'Registration number must be exactly 10 digits')),
+    phone: zod_1.z
+        .string()
+        .trim()
+        .transform((v) => v.replace(/\s+/g, ''))
+        .pipe(zod_1.z
+        .string()
+        .min(1, 'Contact number is required')
+        .regex(phoneRegex, 'Contact number must be exactly 10 digits')),
+    email: zod_1.z
+        .string()
+        .trim()
+        .toLowerCase()
+        .pipe(zod_1.z
+        .string()
+        .min(1, 'Email is required')
+        .regex(gitamEmailRegex, 'Use your official GITAM email (@gitam.edu or @student.gitam.edu)')),
     academicYear: academicYearEnum,
     branch: branchEnum,
 });

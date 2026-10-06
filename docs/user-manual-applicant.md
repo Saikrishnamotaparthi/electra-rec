@@ -14,9 +14,9 @@ Welcome to the G-ELECTRA Recruitment Platform. This guide walks you through appl
 Fill in the required personal information:
 
 - **Full Name** — as it appears on your college records
-- **Registration Number** — your GITAM registration number (e.g., `21B81A05XX`)
-- **Phone Number** — 10-digit Indian mobile number (with or without +91)
-- **Email Address** — your GITAM email (recommended) or any valid email
+- **Registration Number** — exactly 10 digits (no letters or hyphens)
+- **Phone Number** — exactly 10 digits (no +91, spaces or hyphens)
+- **Email Address** — must be a GITAM address: `@gitam.edu` or `@student.gitam.edu`
 - **Academic Year** — select 1st, 2nd, 3rd, 4th, or Other
 - **Branch** — select your department (CSE, ECE, EECE, Mechanical, etc.)
 
@@ -99,7 +99,7 @@ Accepted link formats:
 | Email not received | Check spam/junk folder; ensure the email address is correct |
 | Can't submit photo | Ensure the Google Drive link is shared publicly |
 | Draft lost | Ensure you used the same browser/device; drafts are stored locally |
-| Registration number error | Enter at least 3 characters; uppercase is auto-applied |
+| Registration number error | Enter exactly 10 digits; letters are not allowed and non-digits are blocked as you type |
 
 ## Need Help?
 

@@ -35,7 +35,7 @@ function AnswerBlock({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-white/10 bg-ink-900/50 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.12em] text-mist-400">{label}</p>
-      <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-mist-100">
+      <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-mist-100">
         {value?.trim() ? value : '—'}
       </p>
     </div>

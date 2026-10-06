@@ -43,6 +43,8 @@ export const EXISTING_TEAM = {
   MARKETING: 'MARKETING',
   CONTENT: 'CONTENT',
   CREATIVE_DESIGN: 'CREATIVE_DESIGN',
+  HARDWARE: 'HARDWARE',
+  SOFTWARE: 'SOFTWARE',
 } as const;
 export type ExistingTeam = (typeof EXISTING_TEAM)[keyof typeof EXISTING_TEAM];
 

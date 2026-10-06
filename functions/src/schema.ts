@@ -4,8 +4,9 @@ import { z } from 'zod';
 // Shared validation helpers (mirrors the frontend schemas)
 // ---------------------------------------------------------------------------
 
-const phoneRegex = /^(\+91[\-\s]?)?[6-9]\d{9}$/;
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^\d{10}$/;
+const registrationRegex = /^\d{10}$/;
+const gitamEmailRegex = /^[^\s@]+@(gitam\.edu|student\.gitam\.edu)$/;
 
 const academicYearEnum = z.enum(['FIRST', 'SECOND', 'THIRD', 'FOURTH', 'OTHER']);
 const branchEnum = z.enum([
@@ -21,13 +22,45 @@ const portfolioEnum = z.enum([
   'MARKETING', 'CONTENT', 'CREATIVE_DESIGN', 'HARDWARE', 'SOFTWARE',
 ]);
 const roleEnum = z.enum(['MEMBER', 'CO_LEAD']);
-const existingTeamEnum = z.enum(['MARKETING', 'CONTENT', 'CREATIVE_DESIGN']);
+const existingTeamEnum = z.enum([
+  'MARKETING', 'CONTENT', 'CREATIVE_DESIGN', 'HARDWARE', 'SOFTWARE',
+]);
 
 const personalSchema = z.object({
   fullName: z.string().trim().min(1, 'This field is required').max(100, 'Name must be 100 characters or fewer'),
-  registrationNumber: z.string().trim().transform((v) => v.toUpperCase().replace(/\s+/g, '')).pipe(z.string().min(3, 'Enter a valid registration number')),
-  phone: z.string().trim().pipe(z.string().regex(phoneRegex, 'Enter a valid 10-digit Indian mobile number')),
-  email: z.string().trim().toLowerCase().pipe(z.string().regex(emailRegex, 'Enter a valid email address')),
+  registrationNumber: z
+    .string()
+    .trim()
+    .transform((v) => v.toUpperCase().replace(/\s+/g, ''))
+    .pipe(
+      z
+        .string()
+        .min(1, 'Registration number is required')
+        .regex(registrationRegex, 'Registration number must be exactly 10 digits'),
+    ),
+  phone: z
+    .string()
+    .trim()
+    .transform((v) => v.replace(/\s+/g, ''))
+    .pipe(
+      z
+        .string()
+        .min(1, 'Contact number is required')
+        .regex(phoneRegex, 'Contact number must be exactly 10 digits'),
+    ),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(
+      z
+        .string()
+        .min(1, 'Email is required')
+        .regex(
+          gitamEmailRegex,
+          'Use your official GITAM email (@gitam.edu or @student.gitam.edu)',
+        ),
+    ),
   academicYear: academicYearEnum,
   branch: branchEnum,
 });

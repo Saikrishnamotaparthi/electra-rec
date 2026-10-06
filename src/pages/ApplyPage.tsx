@@ -37,11 +37,17 @@ import {
   type Role,
 } from '@/types';
 import {
+  CONTACT_NUMBER_ERROR,
+  CONTACT_NUMBER_REGEX,
   emptyDraft,
+  GITAM_EMAIL_ERROR,
+  GITAM_EMAIL_REGEX,
   personalSchema,
   photoSchema,
   portfolioSchema,
   questionsSchema,
+  REGISTRATION_NUMBER_ERROR,
+  REGISTRATION_NUMBER_REGEX,
   roleSchema,
   type ApplicationDraft,
 } from '@/schemas/application';
@@ -148,9 +154,31 @@ function stepErrors(
 
   if (step === 'personal') {
     setErrorIfMissing('fullName', draft.fullName, 'Full name is required');
-    setErrorIfMissing('registrationNumber', draft.registrationNumber, 'Registration number is required');
-    setErrorIfMissing('phone', draft.phone, 'Contact number is required');
-    setErrorIfMissing('email', draft.email, 'Email is required');
+
+    const registrationNumber = (draft.registrationNumber ?? '')
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, '');
+    if (!registrationNumber) {
+      out.registrationNumber = 'Registration number is required';
+    } else if (!REGISTRATION_NUMBER_REGEX.test(registrationNumber)) {
+      out.registrationNumber = REGISTRATION_NUMBER_ERROR;
+    }
+
+    const phone = (draft.phone ?? '').trim().replace(/\s+/g, '');
+    if (!phone) {
+      out.phone = 'Contact number is required';
+    } else if (!CONTACT_NUMBER_REGEX.test(phone)) {
+      out.phone = CONTACT_NUMBER_ERROR;
+    }
+
+    const email = (draft.email ?? '').trim().toLowerCase();
+    if (!email) {
+      out.email = 'Email is required';
+    } else if (!GITAM_EMAIL_REGEX.test(email)) {
+      out.email = GITAM_EMAIL_ERROR;
+    }
+
     if (!draft.academicYear) out.academicYear = 'Select your academic year';
     if (!draft.branch) out.branch = 'Select your branch';
   }
@@ -517,24 +545,35 @@ export default function ApplyPage() {
           label="Registration Number"
           name="registrationNumber"
           required
-          placeholder="e.g. 21BAI1234"
+          inputMode="numeric"
+          maxLength={10}
+          placeholder="10 digits, e.g. 2100123456"
           value={draft.registrationNumber}
-          onChange={(e) =>
-            updateDraft({ registrationNumber: e.target.value.toUpperCase().replace(/\s+/g, '') })
-          }
+          onChange={(e) => {
+            updateDraft({
+              registrationNumber: e.target.value.replace(/\D/g, '').slice(0, 10),
+            });
+            setLocalErrors((prev) => ({ ...prev, registrationNumber: '' }));
+          }}
           error={localErrors.registrationNumber}
+          hint="Use valid GITAM Registration Number only."
         />
         <Input
           label="Contact Number"
           name="phone"
           required
           type="tel"
-          inputMode="tel"
-          autoComplete="tel"
+          inputMode="numeric"
+          autoComplete="tel-national"
+          maxLength={10}
           placeholder="10-digit mobile number"
           value={draft.phone}
-          onChange={(e) => updateDraft({ phone: e.target.value })}
+          onChange={(e) => {
+            updateDraft({ phone: e.target.value.replace(/\D/g, '').slice(0, 10) });
+            setLocalErrors((prev) => ({ ...prev, phone: '' }));
+          }}
           error={localErrors.phone}
+          hint="Exactly 10 digits, no +91 or spaces."
         />
         <Input
           label="GITAM Email ID"
@@ -545,9 +584,12 @@ export default function ApplyPage() {
           autoComplete="email"
           placeholder="your.name@gitam.edu"
           value={draft.email}
-          onChange={(e) => updateDraft({ email: e.target.value })}
+          onChange={(e) => {
+            updateDraft({ email: e.target.value });
+            setLocalErrors((prev) => ({ ...prev, email: '' }));
+          }}
           error={localErrors.email}
-          hint="Preferably your official GITAM email."
+          hint="Use valid GITAM mail only."
         />
         <Select
           label="Current Academic Year"
@@ -949,7 +991,7 @@ export default function ApplyPage() {
               <div className="grid gap-3 text-sm sm:grid-cols-2">
                 <div>
                   <p className="text-xs text-mist-400">Full Name</p>
-                  <p className="text-white">{draft.fullName || '—'}</p>
+                  <p className="break-words text-white">{draft.fullName || '—'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-mist-400">Registration Number</p>
@@ -1039,11 +1081,16 @@ export default function ApplyPage() {
                     Edit
                   </button>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {questions.map((q) => (
-                    <div key={q.label}>
-                      <p className="text-xs text-mist-400">{q.label}</p>
-                      <p className="mt-0.5 whitespace-pre-wrap text-sm text-white">{q.value}</p>
+                    <div
+                      key={q.label}
+                      className="rounded-lg border border-white/5 bg-ink-900/40 px-3.5 py-2.5"
+                    >
+                      <p className="text-xs font-medium text-mist-400">{q.label}</p>
+                      <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-relaxed text-white">
+                        {q.value}
+                      </p>
                     </div>
                   ))}
                 </div>

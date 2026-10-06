@@ -107,6 +107,8 @@ export const EXISTING_TEAM_LABELS: Record<ExistingTeam, string> = {
   MARKETING: 'Marketing Team',
   CONTENT: 'Content Team',
   CREATIVE_DESIGN: 'Creative Design Team',
+  HARDWARE: 'Hardware Team',
+  SOFTWARE: 'Software Team',
 };
 
 export const STATUS_LABELS: Record<ApplicationStatus, string> = {
