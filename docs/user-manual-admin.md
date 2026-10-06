@@ -56,7 +56,7 @@ Use the filter bar to narrow results:
 - **Role** — Member or Co-Lead
 - **Status** — Submitted, Reviewed, Shortlisted, Rejected
 - **Academic Year** — 1st through 4th year
-- **Branch** — CSE, ECE, etc.
+- **Branch** — CSE (incl. AI & ML, Data Science, Cyber Security), ECE, etc.
 - **Existing Member** — Yes/No
 - **Date Range** — from/to date pickers
 
@@ -126,6 +126,8 @@ Generates `G-ELECTRA-Recruitment-2026.xlsx` containing:
 - **All Applications** sheet — every application with all fields
 - **Per-team sheets** — Marketing, Content, Creative Design, Web Developer, Hardware, Software
 
+> The Web Developer sheet only contains historical applications — that portfolio is closed for new submissions.
+
 ### Export by Portfolio
 
 Generates a single-sheet file for one team: `G-ELECTRA-{Team}-2026.xlsx`
@@ -172,6 +174,6 @@ View and manage:
 |---------|----------|
 | Can't sign in | Verify your Google account email is in the allowlist |
 | Applications not loading | Check internet connection; Firestore rules must allow admin read |
-| Email not sending | Check Cloud Functions logs; verify Gmail app password |
+| Email not sending | On Vercel, verify `GMAIL_USER`, `GMAIL_APP_PASSWORD` and `FIREBASE_SERVICE_ACCOUNT` env vars in the dashboard and check the function logs; for Cloud Functions check `firebase functions:log` |
 | Export fails | Ensure all applications have required fields; try a smaller date range |
 | Status update fails | Ensure you're signed in as an authorized admin |

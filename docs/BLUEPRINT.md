@@ -16,15 +16,18 @@
 │                   Firebase SDK v11                       │
 └──────────────────────────┼───────────────────────────────┘
                            │
-          ┌────────────────┼────────────────┐
-          │                │                │
-   ┌──────▼──────┐  ┌──────▼──────┐  ┌──────▼──────┐
-   │   Firebase  │  │  Firestore  │  │   Cloud     │
-   │     Auth    │  │     DB      │  │  Functions  │
-   │  (Google    │  │applications │  │  (Nodemailer│
-   │   Sign-in)  │  │  collection │  │   + Gmail)  │
-   └─────────────┘  └─────────────┘  └─────────────┘
+          ┌────────────────┼────────────────┬──────────────────┐
+          │                │                │                  │
+   ┌──────▼──────┐  ┌──────▼──────┐  ┌──────▼──────┐   ┌───────▼───────┐
+   │   Firebase  │  │  Firestore  │  │   Cloud     │   │ Vercel API    │
+   │     Auth    │  │     DB      │  │  Functions  │   │ (api/ routes, │
+   │  (Google    │  │applications │  │  (Nodemailer│   │  Firebase     │
+   │   Sign-in)  │  │  collection │  │   + Gmail)  │   │  Admin +      │
+   └─────────────┘  └─────────────┘  └─────────────┘   │  Nodemailer)  │
+                                                       └───────────────┘
 ```
+
+> **Primary production path (Vercel):** the browser calls `POST /api/applications`, which validates the payload, creates the Firestore document with Firebase Admin, and sends the confirmation email server-side. Cloud Functions remain available as a fallback for Firebase Hosting setups.
 
 ## Data Model
 
@@ -36,7 +39,7 @@
 | `submittedAt` | number | Unix timestamp (ms) |
 | `updatedAt` | number | Unix timestamp (ms) |
 | `status` | enum | `submitted` \| `reviewed` \| `shortlisted` \| `rejected` |
-| `emailStatus` | enum | `pending` \| `sent` \| `failed` |
+| `emailStatus` | enum | `pending` \| `sent` \| `failed` \| `skipped` |
 | `emailError` | string \| null | Last email error message |
 | `lastEmailAttemptAt` | number \| null | Timestamp of last email attempt |
 | `personal` | object | fullName, registrationNumber, phone, email, academicYear, branch |
@@ -60,7 +63,13 @@
 - **Read/Update**: Only authorized admin emails
 - **Delete**: Denied (use archive instead)
 
-### Cloud Functions
+### Serverless API (Vercel — primary)
+
+- `POST /api/applications`: validates payload (10-digit registration/phone, GITAM email), generates the ID, writes to Firestore, sends confirmation email
+- `POST /api/send-application-email`, `POST /api/resend-application-email`: confirmation resend (admin-guarded)
+- `GET /api/health`: reports `firebaseAdminConfigured` and service status
+
+### Cloud Functions (fallback)
 
 - `submitApplication`: Public, validates payload, generates ID, sends email
 - `resendConfirmationEmail`: Admin or the application owner
@@ -83,7 +92,7 @@
 
 ### Co-Lead + Existing Member
 - Answers: opinion, learningGoals, coLeadMotivation
-- Asks existingTeam (Marketing / Content / Creative Design only)
+- Asks existingTeam (Marketing / Content / Creative Design / Hardware / Software)
 
 ### Co-Lead + Non-Member
 - Answers: opinion, learningGoals, coLeadMotivation, conflictHandling, initiatives, leadershipExperience, taskPrioritization
@@ -91,8 +100,8 @@
 ## Email System
 
 - Transport: Nodemailer with Gmail SMTP
-- Secrets: `GMAIL_USER`, `GMAIL_APP_PASSWORD` (Firebase secrets)
-- Templates: Branded HTML with charcoal/gold palette
+- Secrets: `GMAIL_USER`, `GMAIL_APP_PASSWORD` (Vercel env vars for API routes; Firebase secrets for Cloud Functions)
+- Templates: Branded HTML with charcoal/gold palette, plus a WhatsApp group CTA
 - Status tracking: `emailStatus` field on each application document
 
 ## Excel Export

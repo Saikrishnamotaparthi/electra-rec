@@ -31,9 +31,10 @@ G-ELECTRA Recruitment Platform is a full-stack web application that lets student
 - **6-step application wizard** — Personal → Portfolio → Role → Questions → Photo → Review
 - **Autosave drafts** — progress saved locally; leave and resume anytime
 - **Smart conditional questions** — different question sets for Member vs Co-Lead, existing vs new applicants
-- **Portfolio selection** — Marketing, Content, Creative Design, Web Developer, Hardware, Software
+- **Portfolio selection** — Marketing, Content, Creative Design, Hardware, Software (Web Developer intake is closed; historical Web Developer records stay visible to admins)
+- **Strict input validation** — registration and phone numbers must be exactly 10 digits; email must be a GITAM address (`@gitam.edu` / `@student.gitam.edu`)
 - **Google Drive photo upload** — share link only (no file storage)
-- **Email receipt** — branded confirmation email sent on successful submission
+- **Email receipt** — branded confirmation email sent on successful submission, with a WhatsApp group CTA
 - **Application ID** — unique `GE26-XXXXX` reference on every submission
 
 ### Admins
@@ -46,6 +47,7 @@ G-ELECTRA Recruitment Platform is a full-stack web application that lets student
 - **Settings** — club info, recruitment year, admin email list
 
 ### Platform
+- **Vercel serverless API** — `POST /api/applications` validates, writes to Firestore, and emails the receipt server-side (Cloud Functions kept as fallback)
 - **Firebase Auth** — Google sign-in with server-side allowlist
 - **Firestore** — secure document database with composite indexes
 - **Security rules** — public create-only for applicants; admin-only read/update
@@ -67,7 +69,7 @@ G-ELECTRA Recruitment Platform is a full-stack web application that lets student
 | Animations | Framer Motion |
 | Charts | Recharts |
 | Icons | Lucide React |
-| Backend | Firebase (Authentication, Firestore, Hosting) |
+| Backend | Firebase (Auth, Firestore) + Vercel serverless API (submission + email) |
 | Email | Branded HTML confirmation emails |
 | Excel | xlsx |
 
@@ -97,24 +99,14 @@ Logo assets are in `public/`. The official logo must not be redesigned.
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/YOUR_ORG/g-electra-recruitment.git
-cd g-electra-recruitment
+git clone https://github.com/Saikrishnamotaparthi/electra-rec.git
+cd electra-rec
 npm install
 ```
 
 ### 2. Configure environment
 
-Copy the example env file and fill in your Firebase web app config:
-
-```bash
-# Windows
-copy .env.example .env
-
-# macOS / Linux
-cp .env.example .env
-```
-
-Edit `.env`:
+Create a `.env` file at the project root (it is gitignored) and fill in your Firebase web app config:
 
 ```env
 VITE_FIREBASE_API_KEY=your-api-key
@@ -160,17 +152,13 @@ Open [http://localhost:5173](http://localhost:5173)
 npm run build
 ```
 
-Output goes to `dist/`. Deploy with Firebase Hosting:
-
-```bash
-firebase deploy --only hosting
-```
+Output goes to `dist/`. Production deploys automatically via **Vercel** on every push to `main`; use `firebase deploy --only hosting` only for Firebase Hosting setups.
 
 ---
 
 ## Environment Variables
 
-All required variables live in `.env` at the project root (copy from `.env.example`).
+All required frontend variables live in `.env` at the project root (gitignored — never commit it).
 
 ### Firebase Web App Config
 
@@ -188,7 +176,7 @@ Frontend vars must be prefixed with `VITE_`.
 
 ### Gmail — Email Receipts
 
-Used to send confirmation emails to applicants.
+Used to send confirmation emails to applicants. Set them **twice**: in `functions/.env` (Cloud Functions) and in Vercel → Project Settings → Environment Variables (serverless API routes).
 
 | Variable | Required | Description |
 |----------|----------|-------------|
@@ -201,7 +189,17 @@ Used to send confirmation emails to applicants.
 3. Create an app password (name: `g-electra`)
 4. Copy the 16-character password into `GMAIL_APP_PASSWORD`
 
-> **Never commit `.env`** — it is gitignored. Share `.env.example` only.
+### Vercel — Serverless API
+
+Production runs on Vercel (`https://electra-rec.vercel.app`). The API routes under `api/` validate the payload, create the Firestore document, and send the confirmation email. Set these in Vercel → Project Settings → Environment Variables (template: `.env.vercel.example`):
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GMAIL_USER` / `GMAIL_APP_PASSWORD` | Yes | Gmail credentials for confirmation emails |
+| `FIREBASE_SERVICE_ACCOUNT` | Yes | Entire Firebase service-account JSON pasted as one line (Firebase Console → Project Settings → Service accounts) |
+| `ADMIN_EMAILS` | No | Comma-separated admin emails allowed to resend emails |
+
+> **Never commit `.env`** — it is gitignored. Share `.env.vercel.example` only.
 
 ---
 
@@ -228,7 +226,9 @@ g-electra-recruitment/
 ├── firestore.rules              # Firestore security rules
 ├── firestore.indexes.json       # Composite indexes
 ├── firebase.json                # Firebase Hosting + Firestore config
-├── .env.example                 # Environment variable template
+├── api/                        # Vercel serverless routes (submission, email, health)
+├── server/                     # Shared server helpers (Firebase Admin, Gmail mailer)
+├── .env.vercel.example         # Vercel environment variable template
 └── docs/                        # Setup, blueprint, user manuals, deployment guide
 ```
 
@@ -272,16 +272,24 @@ To add an admin, update the allowlist in `src/constants/index.ts` (and `firestor
 
 ## Deployment
 
+Production is deployed on **Vercel**; every push to `main` triggers a new production deploy.
+
+```bash
+# Ship a change to production
+git add <files> && git commit -m "<type>(<scope>): <subject>" && git push origin main
+```
+
+Firebase CLI is still used for the database side:
+
 ```bash
 # Deploy security rules + indexes
 firebase deploy --only firestore:rules,firestore:indexes
 
-# Deploy frontend to Firebase Hosting
-npm run build
-firebase deploy --only hosting
+# Deploy Cloud Functions (optional fallback submission path)
+firebase deploy --only functions
 ```
 
-See [docs/deployment.md](docs/deployment.md) for the full checklist (auth setup, admin allowlist, monitoring).
+Set `GMAIL_USER`, `GMAIL_APP_PASSWORD`, and `FIREBASE_SERVICE_ACCOUNT` in the Vercel dashboard before the first production submission. See [docs/deployment.md](docs/deployment.md) for the full checklist (auth setup, admin allowlist, monitoring).
 
 ---
 

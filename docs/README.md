@@ -18,10 +18,11 @@ A production-ready recruitment platform for **G-ELECTRA Smart Systems Club** (GI
 
 ## Features
 
-- **Public recruitment wizard** at `/apply` — 6-step form with autosave drafts, portfolio/role selection, conditional Co-Lead flow, Google Drive photo upload
+- **Public recruitment wizard** at `/apply` — 6-step form with autosave drafts, portfolio/role selection, conditional Co-Lead flow, Google Drive photo upload; strict validation (10-digit registration/phone, GITAM email)
 - **Admin dashboard** at `/admin` — Google sign-in with allowlist enforcement, application list with filters/search/pagination, application detail view, analytics charts, Excel export, settings
-- **Cloud Functions** — `submitApplication`, `resendConfirmationEmail`, `updateApplicationStatus`, `getRecruitmentStats` (admin-guarded)
-- **Email** — branded HTML confirmation and status-update emails via Gmail (Nodemailer)
+- **Serverless API (Vercel, `api/`)** — `POST /api/applications` validates the payload, creates the Firestore document and sends the confirmation email; plus send/resend email routes and `/api/health`
+- **Cloud Functions** — `submitApplication`, `resendConfirmationEmail`, `updateApplicationStatus`, `getRecruitmentStats` (admin-guarded), kept as a fallback path
+- **Email** — branded HTML confirmation and status-update emails via Gmail (Nodemailer), with a WhatsApp group CTA
 - **Excel export** — all-applications workbook + per-portfolio sheets
 - **Firestore rules** — public create-only, admin read/update via hardcoded allowlist
 - **Composite indexes** — pre-configured for common admin queries
@@ -32,8 +33,8 @@ A production-ready recruitment platform for **G-ELECTRA Smart Systems Club** (GI
 # 1. Install dependencies
 npm install
 
-# 2. Configure environment
-copy .env.example .env   # fill in Firebase web app config
+# 2. Configure environment — create .env with VITE_FIREBASE_* values
+#    (see .env.vercel.example for the Vercel-side variables)
 
 # 3. Start dev server
 npm run dev
@@ -62,6 +63,9 @@ See [docs/SETUP.md](docs/SETUP.md) for full Firebase project setup.
 │       ├── index.ts        # Callable functions
 │       ├── schema.ts       # Zod validation (server-side)
 │       └── email/templates.ts  # HTML email templates
+├── api/                    # Vercel serverless routes (submission, email, health)
+├── server/                 # Firebase Admin + Gmail mailer helpers
+├── vercel.json             # Vercel config (SPA rewrite, function limits)
 ├── firestore.rules         # Security rules
 ├── firestore.indexes.json  # Composite indexes
 ├── firebase.json           # Firebase hosting/functions/firestore config

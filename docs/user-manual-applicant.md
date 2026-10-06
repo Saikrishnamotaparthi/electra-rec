@@ -18,7 +18,7 @@ Fill in the required personal information:
 - **Phone Number** — exactly 10 digits (no +91, spaces or hyphens)
 - **Email Address** — must be a GITAM address: `@gitam.edu` or `@student.gitam.edu`
 - **Academic Year** — select 1st, 2nd, 3rd, 4th, or Other
-- **Branch** — select your department (CSE, ECE, EECE, Mechanical, etc.)
+- **Branch** — select your department (CSE, CSE [AI & ML], CSE [Data Science], CSE [Cyber Security], ECE, EECE, Mechanical, Aerospace, Civil, etc.)
 
 > 💡 Your progress is saved automatically as you type. You can leave and return later.
 
@@ -31,9 +31,10 @@ Choose the **one** team that best matches your interests:
 | Marketing Team | Campaigns, social media, brand outreach |
 | Content Team | Writing, documentation, event reporting |
 | Creative Design Team | Posters, banners, branding, reels |
-| Web Developer | Websites, UI/UX, SEO |
 | Prototype Makers – Hardware | IoT, robotics, hardware systems |
 | Prototype Makers – Software | Apps, prototypes, integrations |
+
+> The **Web Developer** portfolio is closed for this recruitment cycle — it no longer appears as an option for new applications.
 
 ### Step 3: Role
 
@@ -82,7 +83,8 @@ Accepted link formats:
 
 1. You'll see a confirmation screen with your **Application ID** (format: `GE26-XXXXX`)
 2. A confirmation email will be sent to your registered email address
-3. Save your Application ID for future reference
+3. Join the club's WhatsApp group from the confirmation screen or email link
+4. Save your Application ID for future reference
 
 ## What Happens Next?
 
@@ -100,6 +102,8 @@ Accepted link formats:
 | Can't submit photo | Ensure the Google Drive link is shared publicly |
 | Draft lost | Ensure you used the same browser/device; drafts are stored locally |
 | Registration number error | Enter exactly 10 digits; letters are not allowed and non-digits are blocked as you type |
+| Phone number error | Enter exactly 10 digits — no +91, spaces or hyphens |
+| Email rejected | Use your official GITAM address (`@gitam.edu` or `@student.gitam.edu`) |
 
 ## Need Help?
 

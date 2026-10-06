@@ -46,15 +46,19 @@ VITE_FIREBASE_MEASUREMENT_ID=...
 
 ## 5. Configure Environment Variables
 
-```bash
-# Windows (PowerShell)
-Copy-Item .env.example .env
+Create a `.env` file at the project root (it is gitignored) and paste the Firebase config values from Step 2:
 
-# macOS / Linux
-cp .env.example .env
+```env
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
 ```
 
-Edit `.env` and paste the Firebase config values from Step 2.
+> The template for **Vercel-side** variables (serverless API routes) is `.env.vercel.example` — those go in the Vercel dashboard, not in `.env`.
 
 ## 6. Install Dependencies
 
@@ -65,7 +69,7 @@ npm install
 cd ..
 ```
 
-## 7. Set Gmail Credentials (for Cloud Functions)
+## 7. Set Gmail Credentials (for Cloud Functions and Vercel API)
 
 1. Go to [Google Account Security](https://myaccount.google.com/security)
 2. Enable 2-Step Verification
@@ -79,6 +83,8 @@ GMAIL_USER=your-address@gmail.com
 GMAIL_APP_PASSWORD=xxxxxxxxxxxxxxxx
 ```
 
+7. Set the same values **plus** `FIREBASE_SERVICE_ACCOUNT` (Firebase Console → Project Settings → Service accounts → Generate new private key, pasted as one line) in **Vercel → Project Settings → Environment Variables** so the production API routes can send emails.
+
 ## 8. Run Locally
 
 ```bash
@@ -88,6 +94,10 @@ npm run dev
 Visit `http://localhost:5173` for the landing page and `http://localhost:5173/apply` for the recruitment wizard.
 
 ## 9. Deploy
+
+**Production (Vercel):** every push to `main` auto-deploys `https://electra-rec.vercel.app`. Make sure the environment variables from Step 7 are set in the Vercel dashboard.
+
+**Firebase side (rules, indexes, optional functions/hosting):**
 
 ```bash
 # Deploy everything (Firestore rules, indexes, functions, hosting)

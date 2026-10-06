@@ -6,7 +6,7 @@ Instructions for AI agents working on this codebase.
 
 - **Name**: G-ELECTRA Recruitment Platform
 - **Purpose**: Recruitment system for G-ELECTRA Smart Systems Club, GITAM Hyderabad
-- **Stack**: React 19 + TypeScript + Vite 6 + Tailwind 3.4 + Firebase (Auth/Firestore/Functions)
+- **Stack**: React 19 + TypeScript + Vite 6 + Tailwind 3.4 + Firebase (Auth/Firestore/Functions) + Vercel serverless API
 
 ## Hard Rules
 
@@ -20,6 +20,8 @@ Instructions for AI agents working on this codebase.
 8. **Application ID format**: `GE26-XXXXX` (prefix `APPLICATION_ID_PREFIX = 'GE26'`).
 9. **Collection name**: `applications` (hardcoded, not configurable).
 10. **Always include `archived == false` in Firestore list queries.**
+11. **Validation rules are fixed**: registration number and phone must be exactly 10 digits; email must match `@gitam.edu` or `@student.gitam.edu`. Keep them mirrored in `src/schemas/application.ts`, `api/applications.ts`, and `functions/src/schema.ts`.
+12. **Only 5 portfolios are open for new submissions**: Marketing, Content, Creative Design, Hardware, Software. `WEB_DEVELOPER` stays in types/labels/exports for historical records only — never re-add it to `PORTFOLIO_SELECTABLE` or the portfolio schema.
 
 ## Code Conventions
 
@@ -29,7 +31,8 @@ Instructions for AI agents working on this codebase.
 - Custom resolver pattern: `buildResolver(schema)` cast `as never` for RHF compatibility
 - Components use named exports
 - Lazy-load admin pages and heavy components
-- Zod schemas live in `src/schemas/`; server-side mirrors in `functions/src/schema.ts`
+- Zod schemas live in `src/schemas/`; server-side mirrors in `functions/src/schema.ts` and `api/applications.ts` — change all three together
+- Confirmation email HTML exists in two places that must stay in sync: `server/mailer.ts` (Vercel API) and `functions/src/email/templates.ts` (Cloud Functions)
 
 ## Key Files
 
@@ -43,7 +46,11 @@ Instructions for AI agents working on this codebase.
 | `src/services/emailService.ts` | Callable function wrappers |
 | `src/services/excelExport.ts` | xlsx export logic |
 | `src/firebase/config.ts` | Conditional Firebase initialization |
+| `api/applications.ts` | Vercel route: validate, create doc, send confirmation email |
+| `server/mailer.ts` | Vercel Gmail transport + confirmation email HTML |
+| `server/firebaseAdmin.ts` | Firebase Admin init from `FIREBASE_SERVICE_ACCOUNT` |
 | `functions/src/index.ts` | Cloud Functions entry point |
+| `vercel.json` | Vercel config (SPA rewrite, function limits) |
 | `firestore.rules` | Security rules |
 
 ## Common Tasks
@@ -53,7 +60,7 @@ Instructions for AI agents working on this codebase.
 2. Add to Zod schema in `src/schemas/application.ts`
 3. Add to `emptyDraft` if needed
 4. Add to ApplyPage step component
-5. Add to Cloud Functions schema (`functions/src/schema.ts`)
+5. Add to serverless schema (`api/applications.ts`) and Cloud Functions schema (`functions/src/schema.ts`)
 6. Add to `applicationsService.ts` mapDoc
 7. Add to Excel export column mapping
 
@@ -64,7 +71,7 @@ Instructions for AI agents working on this codebase.
 4. Use Firestore service, never mock data
 
 ### Modify email templates
-1. Edit `functions/src/email/templates.ts`
+1. Edit **both** `server/mailer.ts` (Vercel) and `functions/src/email/templates.ts` (Cloud Functions)
 2. Use brand colors (`#233639`, `#E9A134`)
 3. Keep responsive HTML (table-based layout)
 4. Test with `firebase emulators:start --only functions`
@@ -82,10 +89,16 @@ cd functions && npm run build  # compile Cloud Functions
 ## Deployment
 
 ```bash
+# Production (Vercel) — auto-deploys on every push to main
+git push origin main
+
+# Firebase side
 firebase deploy --only firestore:rules,firestore:indexes
 firebase deploy --only functions
 firebase deploy --only hosting
 ```
+
+Vercel env vars (see `.env.vercel.example`): `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `FIREBASE_SERVICE_ACCOUNT`, `VITE_FIREBASE_*`.
 
 ## Do Not
 

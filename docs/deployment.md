@@ -2,11 +2,32 @@
 
 Production deployment checklist for the G-ELECTRA Recruitment Platform.
 
+## Production Deployment — Vercel (Primary)
+
+Production runs at `https://electra-rec.vercel.app`. The SPA plus the serverless API under `api/` (submission, confirmation emails, resend, health) are deployed together.
+
+1. **Import the repo** into Vercel (framework preset: Vite)
+2. **Set environment variables** (Project → Settings → Environment Variables), template in `.env.vercel.example`:
+
+   | Variable | Required | Description |
+   |----------|----------|-------------|
+   | `VITE_FIREBASE_*` | Yes | Firebase web app config (public) |
+   | `GMAIL_USER` | Yes | Gmail address used to send emails |
+   | `GMAIL_APP_PASSWORD` | Yes | 16-character Gmail App Password |
+   | `FIREBASE_SERVICE_ACCOUNT` | Yes | Entire Firebase service-account JSON as **one line** (Firebase Console → Project Settings → Service accounts) |
+   | `ADMIN_EMAILS` | No | Comma-separated admin emails allowed to resend emails |
+
+   > Without `FIREBASE_SERVICE_ACCOUNT`, `POST /api/applications` returns **503** and no application/email is created. Check `GET /api/health` to confirm `firebaseAdminConfigured: true`.
+
+3. **Deploy** — every push to `main` triggers a production deployment
+4. **Verify** — visit `/`, `/apply`, and `/api/health`; submit one controlled test application and confirm exactly one Firestore document and one confirmation email
+
 ## Pre-Deployment Checklist
 
 - [ ] Firebase project created and registered web app
 - [ ] `.env` filled with real Firebase config (never commit)
 - [ ] `functions/.env` filled with Gmail credentials (never commit)
+- [ ] Vercel environment variables set (`GMAIL_USER`, `GMAIL_APP_PASSWORD`, `FIREBASE_SERVICE_ACCOUNT`, `VITE_FIREBASE_*`)
 - [ ] `.firebaserc` updated with your project ID
 - [ ] `npm install` completed (root + functions)
 - [ ] `cd functions && npm install` completed
@@ -67,14 +88,22 @@ firebase deploy --only functions
 - `updateApplicationStatus`
 - `getRecruitmentStats`
 
-### Step 6: Deploy Hosting
+### Step 6: Deploy the Frontend
+
+**Vercel (production):**
+
+```bash
+git push origin main   # auto-deploys to https://electra-rec.vercel.app
+```
+
+**Firebase Hosting (optional alternative):**
 
 ```bash
 npm run build
 firebase deploy --only hosting
 ```
 
-**Expected output:** Hosting URL like `https://g-electra-recruitment.web.app`
+**Expected output:** Hosting URL like `https://g-electra-recruitment.web.app` (or the Vercel production URL)
 
 ### Step 7: Verify Deployment
 
@@ -140,6 +169,15 @@ firebase deploy --only firestore:rules
 | `GMAIL_USER` | Gmail address for sending emails |
 | `GMAIL_APP_PASSWORD` | 16-character Gmail app password |
 
+### Backend (Vercel Serverless API) — Vercel Dashboard
+
+| Variable | Description |
+|----------|-------------|
+| `FIREBASE_SERVICE_ACCOUNT` | Firebase Admin service-account JSON (one line) |
+| `GMAIL_USER` | Gmail address for sending emails |
+| `GMAIL_APP_PASSWORD` | 16-character Gmail app password |
+| `ADMIN_EMAILS` | Optional allowlist for resend requests |
+
 ## Monitoring
 
 ### View Function Logs
@@ -155,6 +193,10 @@ firebase functions:log --only submitApplication
 firebase functions:list
 ```
 
+### Vercel Logs
+
+View real-time function logs in the Vercel dashboard (Project → Observability / Functions) — this is where `/api/applications` errors (e.g. missing `FIREBASE_SERVICE_ACCOUNT`) appear.
+
 ### Firestore Usage
 
 Monitor in Firebase Console → Firestore → Usage tab.
@@ -162,10 +204,11 @@ Monitor in Firebase Console → Firestore → Usage tab.
 ## Security Notes
 
 - **Never commit** `.env` or `functions/.env` to version control
+- **Vercel env vars** hold the live secrets — restrict dashboard access to coordinators
 - **Firestore rules** enforce admin allowlist server-side
-- **Cloud Functions** independently validate admin emails
+- **API routes and Cloud Functions** independently validate payloads and admin emails
 - **Gmail app password** is a secret — rotate if compromised
-- **HTTPS-only** — Firebase Hosting provides SSL automatically
+- **HTTPS-only** — Vercel and Firebase Hosting both provide SSL automatically
 - **CORS** — Cloud Functions configured with `cors: true` for the web app
 
 ## Post-Launch
