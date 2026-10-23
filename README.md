@@ -31,7 +31,7 @@ G-ELECTRA Recruitment Platform is a full-stack web application that lets student
 - **6-step application wizard** — Personal → Portfolio → Role → Questions → Photo → Review
 - **Autosave drafts** — progress saved locally; leave and resume anytime
 - **Smart conditional questions** — different question sets for Member vs Co-Lead, existing vs new applicants
-- **Portfolio selection** — Marketing, Content, Creative Design, Hardware, Software (Web Developer intake is closed; historical Web Developer records stay visible to admins)
+- **Portfolio selection** — Marketing, Content, Creative Design, Web Development, Hardware, Software
 - **Strict input validation** — registration and phone numbers must be exactly 10 digits; email must be a GITAM address (`@gitam.edu` / `@student.gitam.edu`)
 - **Google Drive photo upload** — share link only (no file storage)
 - **Email receipt** — branded confirmation email sent on successful submission, with a WhatsApp group CTA

@@ -5,10 +5,6 @@ import { sendConfirmationEmail } from '../server/mailer.js';
 
 const APPLICATION_ID_PREFIX = 'GE26';
 
-// `WEB_DEVELOPER` remains a valid stored value for historical applications but is
-// no longer open for new submissions.
-const CLOSED_PORTFOLIOS = new Set(['WEB_DEVELOPER']);
-
 // Mirrors src/schemas/application.ts — kept local so this route has no build-time
 // dependency on the React app's path aliases.
 const REGISTRATION_NUMBER_REGEX = /^\d{10}$/;
@@ -57,13 +53,7 @@ const personalSchema = z.object({
 const payloadSchema = z.object({
   personal: personalSchema,
   application: z.object({
-    portfolio: z
-      .string()
-      .min(1)
-      .max(80)
-      .refine((value) => !CLOSED_PORTFOLIOS.has(value), {
-        message: 'This portfolio is no longer accepting applications.',
-      }),
+    portfolio: z.string().min(1).max(80),
     role: z.string().min(1).max(40),
     existingMember: z.union([z.boolean(), z.null()]).optional(),
     existingTeam: z.union([z.string().max(80), z.null()]).optional(),

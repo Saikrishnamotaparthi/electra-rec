@@ -21,7 +21,7 @@ Instructions for AI agents working on this codebase.
 9. **Collection name**: `applications` (hardcoded, not configurable).
 10. **Always include `archived == false` in Firestore list queries.**
 11. **Validation rules are fixed**: registration number and phone must be exactly 10 digits; email must match `@gitam.edu` or `@student.gitam.edu`. Keep them mirrored in `src/schemas/application.ts`, `api/applications.ts`, and `functions/src/schema.ts`.
-12. **Only 5 portfolios are open for new submissions**: Marketing, Content, Creative Design, Hardware, Software. `WEB_DEVELOPER` stays in types/labels/exports for historical records only — never re-add it to `PORTFOLIO_SELECTABLE` or the portfolio schema.
+12. **All 6 portfolios are open for new submissions**: Marketing, Content, Creative Design, Web Development, Hardware, Software — mirrored in `PORTFOLIO_SELECTABLE`, `src/schemas/application.ts`, `api/applications.ts`, and `functions/src/schema.ts`.
 
 ## Code Conventions
 

@@ -31,10 +31,9 @@ Choose the **one** team that best matches your interests:
 | Marketing Team | Campaigns, social media, brand outreach |
 | Content Team | Writing, documentation, event reporting |
 | Creative Design Team | Posters, banners, branding, reels |
+| Web Development | Websites, UI/UX, SEO |
 | Prototype Makers – Hardware | IoT, robotics, hardware systems |
 | Prototype Makers – Software | Apps, prototypes, integrations |
-
-> The **Web Developer** portfolio is closed for this recruitment cycle — it no longer appears as an option for new applications.
 
 ### Step 3: Role
 

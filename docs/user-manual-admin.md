@@ -124,9 +124,7 @@ Generates `G-ELECTRA-Recruitment-2026.xlsx` containing:
 
 - **Summary** sheet — key statistics
 - **All Applications** sheet — every application with all fields
-- **Per-team sheets** — Marketing, Content, Creative Design, Web Developer, Hardware, Software
-
-> The Web Developer sheet only contains historical applications — that portfolio is closed for new submissions.
+- **Per-team sheets** — Marketing, Content, Creative Design, Web Development, Hardware, Software
 
 ### Export by Portfolio
 

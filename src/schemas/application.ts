@@ -69,6 +69,7 @@ export const portfolioSchema = z.object({
       PORTFOLIO.MARKETING,
       PORTFOLIO.CONTENT,
       PORTFOLIO.CREATIVE_DESIGN,
+      PORTFOLIO.WEB_DEVELOPER,
       PORTFOLIO.HARDWARE,
       PORTFOLIO.SOFTWARE,
     ],

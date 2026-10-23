@@ -25,7 +25,7 @@ export const PORTFOLIO_LABELS: Record<Portfolio, string> = {
   MARKETING: 'Marketing Team',
   CONTENT: 'Content Team',
   CREATIVE_DESIGN: 'Creative Design Team',
-  WEB_DEVELOPER: 'Web Developer',
+  WEB_DEVELOPER: 'Web Development',
   HARDWARE: 'Prototype Makers – Hardware',
   SOFTWARE: 'Prototype Makers – Software',
 };
@@ -64,16 +64,12 @@ export const PORTFOLIO_ORDER: Portfolio[] = [
 ];
 
 /**
- * Portfolios offered for new submissions.
- * `WEB_DEVELOPER` is intentionally excluded: it stays in `PORTFOLIO_ORDER`,
- * labels and schemas so historical applications keep rendering correctly in
- * admin views, analytics and exports.
+ * Portfolios offered for new submissions — all entries in `PORTFOLIO_ORDER`,
+ * including Web Development (`WEB_DEVELOPER`).
  */
-export type SelectablePortfolio = Exclude<Portfolio, 'WEB_DEVELOPER'>;
+export type SelectablePortfolio = Portfolio;
 
-export const PORTFOLIO_SELECTABLE: SelectablePortfolio[] = PORTFOLIO_ORDER.filter(
-  (p): p is SelectablePortfolio => p !== 'WEB_DEVELOPER',
-);
+export const PORTFOLIO_SELECTABLE: SelectablePortfolio[] = PORTFOLIO_ORDER;
 
 export const ROLE_LABELS: Record<Role, string> = {
   MEMBER: 'Member',
