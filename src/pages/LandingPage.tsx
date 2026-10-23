@@ -81,8 +81,8 @@ export default function LandingPage() {
               Recruitment {new Date().getFullYear()} · Open Now
             </p>
             <h1 className="font-display text-[2.15rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
-              {HERO.headline.split(' ')[0]}{' '}
-              <span className="bg-gold-linear bg-clip-text text-transparent">
+              <span className="block">{HERO.headline.split(' ')[0]}</span>
+              <span className="block bg-gold-linear bg-clip-text text-transparent">
                 TEAM {CLUB_NAME}
               </span>
             </h1>
